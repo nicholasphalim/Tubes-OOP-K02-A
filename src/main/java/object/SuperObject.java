@@ -14,6 +14,9 @@ public class SuperObject {
     public int solidAreaDefaultX = 0;
     public int solidAreaDefaultY = 0;
 
+    public void interact(entity.Player player) {
+    }
+
     public void draw(Graphics2D g2, GamePanel gp){
         g2.drawImage(image,x,y,gp.tileSize,gp.tileSize,null);
     }

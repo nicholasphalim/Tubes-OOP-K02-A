@@ -2,6 +2,7 @@ package entity;
 
 import main.GamePanel;
 import main.KeyHandler;
+import object.SuperObject;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -21,6 +22,8 @@ public class Player extends Entity {
     private String name;
     private Direction direction;
 
+    private SuperObject inventory; 
+
     public Player(GamePanel gp, KeyHandler keyH) {
 
         super(0,0);
@@ -34,6 +37,10 @@ public class Player extends Entity {
 
         setDefaultState();
         getPlayerImage();
+    }
+
+    public Direction getDirection() {
+        return direction;
     }
 
     public void setDefaultState() {
@@ -71,7 +78,7 @@ public class Player extends Entity {
             gp.cChecker.checkTile(this);
 
             int objIndex = gp.cChecker.checkObject(this, true);
-            pickUpObject(objIndex);
+            
 
             if (!collisionOn) { 
                 switch (direction) {
@@ -100,21 +107,113 @@ public class Player extends Entity {
                 spriteCounter = 0;
             }
 
+            if(keyH.interactPressed){
+                interact();
+            }
         }
 
     }
 
     public void pickUpObject(int index){
         if(index != 999){
-            gp.ui.showMessage("You picked up object " + gp.obj[index].name);
-            gp.obj[index] = null;
+            if(inventory == null){
+                inventory = gp.obj[index];
+                gp.obj[index] = null;
+                gp.ui.showMessage("You picked up object " + inventory.name);
+            } else {
+                gp.ui.showMessage("You can only carry one object at a time!");
+            }
 
         }
     }
 
-    public Direction getDirection() {
-        return direction;
+    public void dropObject(){
+        if(inventory != null){
+
+            int dropX = position.x;
+            int dropY = position.y; 
+
+            switch (direction) {
+                case UP:
+                    dropY -= gp.tileSize;
+                    break;
+                case DOWN:
+                    dropY += gp.tileSize;
+                    break;
+                case LEFT:
+                    dropX -= gp.tileSize;
+                    break;
+                case RIGHT:
+                    dropX += gp.tileSize;
+                    break;
+                }
+
+            for (int i = 0; i < gp.obj.length; i++) {
+                if(gp.obj[i] == null){
+                    gp.obj[i] = inventory;
+
+                    gp.obj[i].x = dropX;
+                    gp.obj[i].y = dropY;
+
+                    inventory = null;
+                    gp.ui.showMessage("You dropped " + gp.obj[i].name);
+                    break;
+                }
+            }
+        } else {
+            gp.ui.showMessage("You have nothing to drop!");
+        }
     }
+
+    public void interact(){
+        int interactX = position.x;;
+        int interactY = position.y; 
+
+        switch (direction) {
+            case UP:
+                interactY -= gp.tileSize;
+                break;
+            case DOWN:
+                interactY += gp.tileSize;
+                break;
+            case LEFT:
+                interactX -= gp.tileSize;
+                break;
+            case RIGHT:
+                interactX += gp.tileSize;
+                break;
+        }
+        int objIndex = getObjectIndex(interactX, interactY);
+
+        if(objIndex != 999) {
+            gp.obj[objIndex].interact(this);
+        }
+    }    
+
+    public int getObjectIndex(int x, int y) {
+        int index = 999;
+        boolean found = false;
+
+        Rectangle checkArea = new Rectangle(x + solidArea.x, y + solidArea.y, solidArea.width, solidArea.height);    
+        for(int i = 0; i < gp.obj.length; i++){
+            if(gp.obj[i] != null){
+                gp.obj[i].solidArea.x = gp.obj[i].x + gp.obj[i].solidAreaDefaultX;
+                gp.obj[i].solidArea.y = gp.obj[i].y + gp.obj[i].solidAreaDefaultY;
+
+                if(checkArea.intersects(gp.obj[i].solidArea)){
+                    index = i;
+                    found = true;
+                }
+
+            gp.obj[i].solidArea.x = gp.obj[i].solidAreaDefaultX;
+            gp.obj[i].solidArea.y = gp.obj[i].solidAreaDefaultY;
+
+            if(found) break;
+            }
+        }
+        return index;
+    }
+
 
     public void draw(Graphics2D g2){
 //        g2.setColor(Color.white);
