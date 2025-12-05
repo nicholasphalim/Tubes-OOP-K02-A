@@ -187,6 +187,10 @@ public class Player extends Entity {
 
         if(objIndex != 999) {
             gp.obj[objIndex].interact(this);
+        } else { 
+            if(inventory != null){
+                dropObject();
+            }
         }
     }    
 
