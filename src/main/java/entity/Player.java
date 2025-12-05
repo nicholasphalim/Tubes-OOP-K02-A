@@ -11,9 +11,6 @@ import java.io.IOException;
 public class Player extends Entity {
     GamePanel gp;
     KeyHandler keyH;
-    int standCounter = 0;
-    boolean moving = false;
-    int pixelCounter = 0;
 
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp;
@@ -52,40 +49,30 @@ public class Player extends Entity {
     }
 
     public void update(){
-        if(!moving){
-            if(keyH.upPressed ||  keyH.downPressed || keyH.leftPressed || keyH.rightPressed) {
-                if(keyH.upPressed) {
-                    direction = "up";
-                } else if(keyH.downPressed) {
-                    direction = "down";
-                }  else if(keyH.leftPressed) {
-                    direction = "left";
-                } else if(keyH.rightPressed) {
-                    direction = "right";
-                }
 
-                moving = true;
+        Direction inputDir = keyH.getDirection();
 
-                collisionOn = false;
-                gp.cChecker.checkTile(this);
+        if(inputDir != null) {
+            this.direction = inputDir;
 
-                int objIndex = gp.cChecker.checkObject(this, true);
-                pickUpObject(objIndex);
-        }
-        }
-        if(moving){
-            if(!collisionOn){
+            collisionOn = false;
+            gp.cChecker.checkTile(this);
+
+            int objIndex = gp.cChecker.checkObject(this, true);
+            pickUpObject(objIndex);
+
+            if (!collisionOn) { 
                 switch (direction) {
-                    case "up":
+                    case UP:
                         y -= speed;
                         break;
-                    case "down":
+                    case DOWN:
                         y += speed;
                         break;
-                    case "left":
+                    case LEFT:
                         x -= speed;
                         break;
-                    case "right":
+                    case RIGHT:
                         x += speed;
                         break;
                 }
@@ -101,12 +88,6 @@ public class Player extends Entity {
                 spriteCounter = 0;
             }
 
-            pixelCounter += speed;
-
-            if(pixelCounter == 48) {
-                moving = false;
-                pixelCounter = 0;
-            }
         }
 
     }
@@ -125,7 +106,7 @@ public class Player extends Entity {
         BufferedImage image = null;
 
         switch (direction) {
-            case "up":
+            case UP:
                 if(spriteNum == 1){
                     image = up1;
                 }
@@ -133,7 +114,7 @@ public class Player extends Entity {
                     image = up2;
                 }
                 break;
-            case "down":
+            case DOWN:
                 if(spriteNum == 1){
                     image = down1;
                 }
@@ -141,7 +122,7 @@ public class Player extends Entity {
                     image = down2;
                 }
                 break;
-            case "left":
+            case LEFT:
                 if(spriteNum == 1){
                     image = left1;
                 }
@@ -149,7 +130,7 @@ public class Player extends Entity {
                     image = left2;
                 }
                 break;
-            case "right":
+            case RIGHT:
                 if(spriteNum == 1){
                     image = right1;
                 }

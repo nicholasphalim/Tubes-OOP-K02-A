@@ -3,6 +3,8 @@ package main;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import entity.Direction;
+
 public class KeyHandler implements KeyListener {
 
     public  boolean upPressed = false;
@@ -47,5 +49,13 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_D) {
             rightPressed = false;
         }
+    }
+
+    public Direction getDirection() {
+        if (upPressed) return Direction.UP;
+        if (downPressed) return Direction.DOWN;
+        if (leftPressed) return Direction.LEFT;
+        if (rightPressed) return Direction.RIGHT;
+        return null;
     }
 }
