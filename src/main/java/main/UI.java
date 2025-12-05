@@ -33,9 +33,9 @@ public class UI {
         g2.drawString("Play Time: ", 590, 30);
         g2.drawString(df.format(playTime), 590, 50);
 
-        g2.drawString("x: " + gp.player.x, 600, 70);
+        g2.drawString("x: " + gp.player.getPosition().x, 600, 70);
 
-        g2.drawString("y: " + gp.player.y, 600, 90);
+        g2.drawString("y: " + gp.player.getPosition().y, 600, 90);
 
         if(this.messageOn){
             g2.setFont(g2.getFont().deriveFont(20f));

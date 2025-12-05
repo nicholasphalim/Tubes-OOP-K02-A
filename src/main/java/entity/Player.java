@@ -8,11 +8,23 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+import javax.imageio.ImageIO;
+
+import main.GamePanel;
+import main.KeyHandler;
+
 public class Player extends Entity {
     GamePanel gp;
     KeyHandler keyH;
 
+    private String id;
+    private String name;
+    private Direction direction;
+
     public Player(GamePanel gp, KeyHandler keyH) {
+
+        super(0,0);
+
         this.gp = gp;
         this.keyH = keyH;
 
@@ -25,8 +37,8 @@ public class Player extends Entity {
     }
 
     public void setDefaultState() {
-        x = gp.tileSize * 1;
-        y = gp.tileSize * 1;
+        position.x = gp.tileSize * 1;
+        position.y = gp.tileSize * 1;
         speed = 4;
         direction = Direction.DOWN;
     }
@@ -64,16 +76,16 @@ public class Player extends Entity {
             if (!collisionOn) { 
                 switch (direction) {
                     case UP:
-                        y -= speed;
+                        position.y -= speed;
                         break;
                     case DOWN:
-                        y += speed;
+                        position.y += speed;
                         break;
                     case LEFT:
-                        x -= speed;
+                        position.x -= speed;
                         break;
                     case RIGHT:
-                        x += speed;
+                        position.x += speed;
                         break;
                 }
             }
@@ -98,6 +110,10 @@ public class Player extends Entity {
             gp.obj[index] = null;
 
         }
+    }
+
+    public Direction getDirection() {
+        return direction;
     }
 
     public void draw(Graphics2D g2){
@@ -146,12 +162,12 @@ public class Player extends Entity {
         int drawWidth = (int) (gp.tileSize * scaleFactor);
         int drawHeight = (int) (gp.tileSize * scaleFactor);
 
-        int drawX = x - (drawWidth - gp.tileSize) / 2;
-        int drawY = y - (drawHeight - gp.tileSize) ;
+        int drawX = position.x - (drawWidth - gp.tileSize) / 2;
+        int drawY = position.y - (drawHeight - gp.tileSize) ;
 
 
         g2.drawImage(image, drawX, drawY, drawWidth, drawHeight, null);
         g2.setColor(Color.red);
-        g2.drawRect(x + solidArea.x, y + solidArea.y, solidArea.width, solidArea.height);
+        g2.drawRect(position.x + solidArea.x, position.y + solidArea.y, solidArea.width, solidArea.height);
     }
 }
