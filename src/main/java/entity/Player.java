@@ -2,6 +2,7 @@ package entity;
 
 import main.GamePanel;
 import main.KeyHandler;
+import object.SuperObject;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -11,11 +12,17 @@ import java.io.IOException;
 public class Player extends Entity {
     GamePanel gp;
     KeyHandler keyH;
-    int standCounter = 0;
-    boolean moving = false;
-    int pixelCounter = 0;
+
+    private String id;
+    private String name;
+    private Direction direction;
+
+    private SuperObject inventory;
 
     public Player(GamePanel gp, KeyHandler keyH) {
+
+        super(0,0);
+
         this.gp = gp;
         this.keyH = keyH;
 
@@ -27,11 +34,15 @@ public class Player extends Entity {
         getPlayerImage();
     }
 
+    public Direction getDirection() {
+        return direction;
+    }
+
     public void setDefaultState() {
-        x = gp.tileSize * 1;
-        y = gp.tileSize * 1;
+        position.x = gp.tileSize * 1;
+        position.y = gp.tileSize * 1;
         speed = 4;
-        direction = "down";
+        direction = Direction.DOWN;
     }
 
     public void getPlayerImage() {
@@ -52,41 +63,31 @@ public class Player extends Entity {
     }
 
     public void update(){
-        if(!moving){
-            if(keyH.upPressed ||  keyH.downPressed || keyH.leftPressed || keyH.rightPressed) {
-                if(keyH.upPressed) {
-                    direction = "up";
-                } else if(keyH.downPressed) {
-                    direction = "down";
-                }  else if(keyH.leftPressed) {
-                    direction = "left";
-                } else if(keyH.rightPressed) {
-                    direction = "right";
-                }
 
-                moving = true;
+        Direction inputDir = keyH.getDirection();
 
-                collisionOn = false;
-                gp.cChecker.checkTile(this);
+        if(inputDir != null) {
+            this.direction = inputDir;
 
-                int objIndex = gp.cChecker.checkObject(this, true);
-                pickUpObject(objIndex);
-        }
-        }
-        if(moving){
-            if(!collisionOn){
+            collisionOn = false;
+            gp.cChecker.checkTile(this);
+
+            int objIndex = gp.cChecker.checkObject(this, true);
+
+
+            if (!collisionOn) {
                 switch (direction) {
-                    case "up":
-                        y -= speed;
+                    case UP:
+                        position.y -= speed;
                         break;
-                    case "down":
-                        y += speed;
+                    case DOWN:
+                        position.y += speed;
                         break;
-                    case "left":
-                        x -= speed;
+                    case LEFT:
+                        position.x -= speed;
                         break;
-                    case "right":
-                        x += speed;
+                    case RIGHT:
+                        position.x += speed;
                         break;
                 }
             }
@@ -100,24 +101,139 @@ public class Player extends Entity {
                 }
                 spriteCounter = 0;
             }
-
-            pixelCounter += speed;
-
-            if(pixelCounter == 48) {
-                moving = false;
-                pixelCounter = 0;
-            }
         }
 
+        // Move the interact check outside the movement input block
+        if(keyH.interactPressed){
+            interact();
+            keyH.interactPressed = false; // Reset the flag after interaction
+        }
     }
 
     public void pickUpObject(int index){
         if(index != 999){
-            gp.ui.showMessage("You picked up object " + gp.obj[index].name);
-            gp.obj[index] = null;
+            if(inventory == null){
+                inventory = gp.obj[index];
+                gp.obj[index] = null;
+                gp.ui.showMessage("You picked up object " + inventory.name);
+            } else {
+                gp.ui.showMessage("You can only carry one object at a time!");
+            }
 
         }
     }
+
+    public void dropObject(){
+        if(inventory != null){
+
+            int dropX = position.x;
+            int dropY = position.y;
+
+            switch (direction) {
+                case UP:
+                    dropY -= gp.tileSize;
+                    break;
+                case DOWN:
+                    dropY += gp.tileSize;
+                    break;
+                case LEFT:
+                    dropX -= gp.tileSize;
+                    break;
+                case RIGHT:
+                    dropX += gp.tileSize;
+                    break;
+                }
+
+            for (int i = 0; i < gp.obj.length; i++) {
+                if(gp.obj[i] == null){
+                    gp.obj[i] = inventory;
+
+                    gp.obj[i].x = dropX;
+                    gp.obj[i].y = dropY;
+
+                    inventory = null;
+                    gp.ui.showMessage("You dropped " + gp.obj[i].name);
+                    break;
+                }
+            }
+        } else {
+            gp.ui.showMessage("You have nothing to drop!");
+        }
+    }
+
+    public void interact(){
+        // Periksa objek yang bisa diambil di petak pemain saat ini terlebih dahulu
+        solidArea.x = solidAreaDefaultX; // Pastikan offset solidArea direset untuk pemeriksaan ini
+        solidArea.y = solidAreaDefaultY;
+        int objOnPlayerTileIndex = getObjectIndex(position.x, position.y);
+
+        if (objOnPlayerTileIndex != 999 && gp.obj[objOnPlayerTileIndex].type == SuperObject.TYPE_PICKUP) {
+            pickUpObject(objOnPlayerTileIndex);
+            return; // Objek diambil, hentikan interaksi lebih lanjut untuk penekanan tombol ini
+        }
+
+        // Jika tidak ada objek yang bisa diambil ditemukan di petak saat ini, lanjutkan dengan memeriksa petak di depan
+        int interactX = position.x;
+        int interactY = position.y;
+
+        switch (direction) {
+            case UP:
+                interactY -= gp.tileSize;
+                break;
+            case DOWN:
+                interactY += gp.tileSize;
+                break;
+            case LEFT:
+                interactX -= gp.tileSize;
+                break;
+            case RIGHT:
+                interactX += gp.tileSize;
+                break;
+        }
+
+        // Reset offset solidArea pemain ke default sebelum memeriksa objek di depan
+        solidArea.x = solidAreaDefaultX;
+        solidArea.y = solidAreaDefaultY;
+
+        int objIndex = getObjectIndex(interactX, interactY);
+
+        if(objIndex != 999) {
+            if (gp.obj[objIndex].type == SuperObject.TYPE_PICKUP) {
+                pickUpObject(objIndex);
+            } else {
+                gp.obj[objIndex].interact(this);
+            }
+        } else {
+            if(inventory != null){
+                dropObject();
+            }
+        }
+    }
+
+    public int getObjectIndex(int x, int y) {
+        int index = 999;
+        boolean found = false;
+
+        Rectangle checkArea = new Rectangle(x + solidArea.x, y + solidArea.y, solidArea.width, solidArea.height);
+        for(int i = 0; i < gp.obj.length; i++){
+            if(gp.obj[i] != null){
+                gp.obj[i].solidArea.x = gp.obj[i].x + gp.obj[i].solidAreaDefaultX;
+                gp.obj[i].solidArea.y = gp.obj[i].y + gp.obj[i].solidAreaDefaultY;
+
+                if(checkArea.intersects(gp.obj[i].solidArea)){
+                    index = i;
+                    found = true;
+                }
+
+            gp.obj[i].solidArea.x = gp.obj[i].solidAreaDefaultX;
+            gp.obj[i].solidArea.y = gp.obj[i].solidAreaDefaultY;
+
+            if(found) break;
+            }
+        }
+        return index;
+    }
+
 
     public void draw(Graphics2D g2){
 //        g2.setColor(Color.white);
@@ -125,7 +241,7 @@ public class Player extends Entity {
         BufferedImage image = null;
 
         switch (direction) {
-            case "up":
+            case UP:
                 if(spriteNum == 1){
                     image = up1;
                 }
@@ -133,7 +249,7 @@ public class Player extends Entity {
                     image = up2;
                 }
                 break;
-            case "down":
+            case DOWN:
                 if(spriteNum == 1){
                     image = down1;
                 }
@@ -141,7 +257,7 @@ public class Player extends Entity {
                     image = down2;
                 }
                 break;
-            case "left":
+            case LEFT:
                 if(spriteNum == 1){
                     image = left1;
                 }
@@ -149,7 +265,7 @@ public class Player extends Entity {
                     image = left2;
                 }
                 break;
-            case "right":
+            case RIGHT:
                 if(spriteNum == 1){
                     image = right1;
                 }
@@ -165,12 +281,12 @@ public class Player extends Entity {
         int drawWidth = (int) (gp.tileSize * scaleFactor);
         int drawHeight = (int) (gp.tileSize * scaleFactor);
 
-        int drawX = x - (drawWidth - gp.tileSize) / 2;
-        int drawY = y - (drawHeight - gp.tileSize) ;
+        int drawX = position.x - (drawWidth - gp.tileSize) / 2;
+        int drawY = position.y - (drawHeight - gp.tileSize) ;
 
 
         g2.drawImage(image, drawX, drawY, drawWidth, drawHeight, null);
         g2.setColor(Color.red);
-        g2.drawRect(x + solidArea.x, y + solidArea.y, solidArea.width, solidArea.height);
+        g2.drawRect(position.x + solidArea.x, position.y + solidArea.y, solidArea.width, solidArea.height);
     }
 }

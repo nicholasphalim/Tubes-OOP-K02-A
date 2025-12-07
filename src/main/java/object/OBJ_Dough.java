@@ -11,6 +11,9 @@ public class OBJ_Dough extends SuperObject{
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        collision = true;
+        collision = false;
+        type = TYPE_PICKUP;
     }
+
+  
 }
