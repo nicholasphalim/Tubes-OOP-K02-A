@@ -3,12 +3,16 @@ package main;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import entity.Direction;
+
 public class KeyHandler implements KeyListener {
 
     public  boolean upPressed = false;
     public  boolean downPressed = false;
     public  boolean leftPressed = false;
     public  boolean rightPressed = false;
+    public boolean interactPressed = false;
+    private boolean eKeyHeld = false;
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -30,6 +34,13 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_D) {
             rightPressed = true;
         }
+        if (code == KeyEvent.VK_E) {
+            // Only set interactPressed to true if the key was not already held down
+            if (!eKeyHeld) {
+                interactPressed = true;
+                eKeyHeld = true; // Mark the key as currently held
+            }
+        }
     }
 
     @Override
@@ -47,5 +58,16 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_D) {
             rightPressed = false;
         }
+        if (code == KeyEvent.VK_E) {
+            eKeyHeld = false;
+        }
+    }
+
+    public Direction getDirection() {
+        if (upPressed) return Direction.UP;
+        if (downPressed) return Direction.DOWN;
+        if (leftPressed) return Direction.LEFT;
+        if (rightPressed) return Direction.RIGHT;
+        return null;
     }
 }
