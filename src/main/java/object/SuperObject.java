@@ -14,7 +14,14 @@ public class SuperObject {
     public int solidAreaDefaultX = 0;
     public int solidAreaDefaultY = 0;
 
+    // Add object type
+    public int type;
+    public static final int TYPE_PICKUP = 0; // For objects that can be picked up
+    public static final int TYPE_INTERACTABLE = 1; // For objects with specific interactions (e.g., doors, switches)
+
     public void interact(entity.Player player) {
+        // This method will now only be called for TYPE_INTERACTABLE objects.
+        // Subclasses can override this for specific interactions.
     }
 
     public void draw(Graphics2D g2, GamePanel gp){

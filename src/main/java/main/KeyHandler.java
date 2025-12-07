@@ -12,6 +12,7 @@ public class KeyHandler implements KeyListener {
     public  boolean leftPressed = false;
     public  boolean rightPressed = false;
     public boolean interactPressed = false;
+    private boolean eKeyHeld = false;
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -34,7 +35,11 @@ public class KeyHandler implements KeyListener {
             rightPressed = true;
         }
         if (code == KeyEvent.VK_E) {
-            interactPressed = true;
+            // Only set interactPressed to true if the key was not already held down
+            if (!eKeyHeld) {
+                interactPressed = true;
+                eKeyHeld = true; // Mark the key as currently held
+            }
         }
     }
 
@@ -54,7 +59,7 @@ public class KeyHandler implements KeyListener {
             rightPressed = false;
         }
         if (code == KeyEvent.VK_E) {
-            interactPressed = false;
+            eKeyHeld = false;
         }
     }
 

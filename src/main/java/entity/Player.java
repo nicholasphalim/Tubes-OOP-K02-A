@@ -9,11 +9,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import javax.imageio.ImageIO;
-
-import main.GamePanel;
-import main.KeyHandler;
-
 public class Player extends Entity {
     GamePanel gp;
     KeyHandler keyH;
@@ -22,7 +17,7 @@ public class Player extends Entity {
     private String name;
     private Direction direction;
 
-    private SuperObject inventory; 
+    private SuperObject inventory;
 
     public Player(GamePanel gp, KeyHandler keyH) {
 
@@ -78,9 +73,9 @@ public class Player extends Entity {
             gp.cChecker.checkTile(this);
 
             int objIndex = gp.cChecker.checkObject(this, true);
-            
 
-            if (!collisionOn) { 
+
+            if (!collisionOn) {
                 switch (direction) {
                     case UP:
                         position.y -= speed;
@@ -106,12 +101,13 @@ public class Player extends Entity {
                 }
                 spriteCounter = 0;
             }
-
-            if(keyH.interactPressed){
-                interact();
-            }
         }
 
+        // Move the interact check outside the movement input block
+        if(keyH.interactPressed){
+            interact();
+            keyH.interactPressed = false; // Reset the flag after interaction
+        }
     }
 
     public void pickUpObject(int index){
@@ -131,7 +127,7 @@ public class Player extends Entity {
         if(inventory != null){
 
             int dropX = position.x;
-            int dropY = position.y; 
+            int dropY = position.y;
 
             switch (direction) {
                 case UP:
@@ -166,8 +162,19 @@ public class Player extends Entity {
     }
 
     public void interact(){
-        int interactX = position.x;;
-        int interactY = position.y; 
+        // Periksa objek yang bisa diambil di petak pemain saat ini terlebih dahulu
+        solidArea.x = solidAreaDefaultX; // Pastikan offset solidArea direset untuk pemeriksaan ini
+        solidArea.y = solidAreaDefaultY;
+        int objOnPlayerTileIndex = getObjectIndex(position.x, position.y);
+
+        if (objOnPlayerTileIndex != 999 && gp.obj[objOnPlayerTileIndex].type == SuperObject.TYPE_PICKUP) {
+            pickUpObject(objOnPlayerTileIndex);
+            return; // Objek diambil, hentikan interaksi lebih lanjut untuk penekanan tombol ini
+        }
+
+        // Jika tidak ada objek yang bisa diambil ditemukan di petak saat ini, lanjutkan dengan memeriksa petak di depan
+        int interactX = position.x;
+        int interactY = position.y;
 
         switch (direction) {
             case UP:
@@ -183,22 +190,31 @@ public class Player extends Entity {
                 interactX += gp.tileSize;
                 break;
         }
+
+        // Reset offset solidArea pemain ke default sebelum memeriksa objek di depan
+        solidArea.x = solidAreaDefaultX;
+        solidArea.y = solidAreaDefaultY;
+
         int objIndex = getObjectIndex(interactX, interactY);
 
         if(objIndex != 999) {
-            gp.obj[objIndex].interact(this);
-        } else { 
+            if (gp.obj[objIndex].type == SuperObject.TYPE_PICKUP) {
+                pickUpObject(objIndex);
+            } else {
+                gp.obj[objIndex].interact(this);
+            }
+        } else {
             if(inventory != null){
                 dropObject();
             }
         }
-    }    
+    }
 
     public int getObjectIndex(int x, int y) {
         int index = 999;
         boolean found = false;
 
-        Rectangle checkArea = new Rectangle(x + solidArea.x, y + solidArea.y, solidArea.width, solidArea.height);    
+        Rectangle checkArea = new Rectangle(x + solidArea.x, y + solidArea.y, solidArea.width, solidArea.height);
         for(int i = 0; i < gp.obj.length; i++){
             if(gp.obj[i] != null){
                 gp.obj[i].solidArea.x = gp.obj[i].x + gp.obj[i].solidAreaDefaultX;
