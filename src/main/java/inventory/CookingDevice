@@ -1,0 +1,8 @@
+package inventory;
+
+public interface CookingDevice {
+    boolean isPortable();
+    boolean canAccept(Preparable ingredient);
+    void addIngredient(Preparable ingredient);
+    void startCooking();
+}
