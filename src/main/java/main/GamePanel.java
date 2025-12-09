@@ -1,6 +1,6 @@
 package main;
 
-import entity.Player;
+import entity.Chef;
 import object.SuperObject;
 import tile.TileManager;
 
@@ -20,13 +20,13 @@ public class GamePanel extends JPanel implements Runnable {
     int FPS =  60;
 
     TileManager tm = new TileManager(this);
-    KeyHandler keyH = new KeyHandler();
+    public KeyHandler keyH = new KeyHandler();
 
     Thread gameThread;
 
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter as = new AssetSetter(this);
-    public Player player = new Player(this, keyH);
+    public Chef chef = new Chef(this, keyH);
     public SuperObject[] obj = new SuperObject[10];
     public UI ui = new UI(this);
 
@@ -79,7 +79,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-        player.update();
+        chef.update();
     }
 
     public void paintComponent(Graphics g) {
@@ -92,7 +92,8 @@ public class GamePanel extends JPanel implements Runnable {
                 obj[i].draw(g2, this);
             }
         }
-        player.draw(g2);
+
+        chef.draw(g2);
 
         ui.draw(g2);
 

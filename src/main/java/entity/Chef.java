@@ -1,32 +1,38 @@
 package entity;
 
+import item.Item;
 import main.GamePanel;
 import main.KeyHandler;
 import object.SuperObject;
+import preparable.Preparable;
+import station.AssemblyStation;
+import station.CuttingStation;
+import station.Station;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-public class Player extends Entity {
-    GamePanel gp;
+public class Chef extends Entity {
+    public GamePanel gp;
     KeyHandler keyH;
 
     private String id;
     private String name;
     private Direction direction;
+    private Item inventory;
+    public Action busyState;
+    public Station currentInteractionStation;
 
-    private SuperObject inventory;
-
-    public Player(GamePanel gp, KeyHandler keyH) {
+    public Chef(GamePanel gp, KeyHandler keyH) {
 
         super(0,0);
 
         this.gp = gp;
         this.keyH = keyH;
 
-        solidArea = new Rectangle(0,0,47,47);
+        solidArea = new Rectangle(12,12,24,24);
         solidAreaDefaultX = solidArea.x;
         solidAreaDefaultY = solidArea.y;
 
@@ -43,6 +49,14 @@ public class Player extends Entity {
         position.y = gp.tileSize * 1;
         speed = 4;
         direction = Direction.DOWN;
+    }
+
+    public Item getInventory() {
+        return inventory;
+    }
+
+    public void setInventory(Item inventory) {
+        this.inventory = inventory;
     }
 
     public void getPlayerImage() {
@@ -65,6 +79,9 @@ public class Player extends Entity {
     public void update(){
 
         Direction inputDir = keyH.getDirection();
+
+        int prevX = position.x;
+        int prevY = position.y;
 
         if(inputDir != null) {
             this.direction = inputDir;
@@ -103,17 +120,94 @@ public class Player extends Entity {
             }
         }
 
-        // Move the interact check outside the movement input block
-        if(keyH.interactPressed){
+        if (busyState != null && (position.x != prevX || position.y != prevY)) {
+            busyState = null;
+            currentInteractionStation = null;
+        }
+
+        if(keyH.eKeyPressed){
+            pickDrop();
+            keyH.eKeyPressed = false;
+        }
+
+        if(keyH.cKeyPressed){
             interact();
-            keyH.interactPressed = false; // Reset the flag after interaction
+            keyH.cKeyPressed = false;
+        }
+    }
+
+    public void pickDrop(){
+        solidArea.x = solidAreaDefaultX;
+        solidArea.y = solidAreaDefaultY;
+        int objOnPlayerTileIndex = getObjectIndex(position.x, position.y);
+
+        if (objOnPlayerTileIndex != 999 && gp.obj[objOnPlayerTileIndex].type == SuperObject.TYPE_PICKUP) {
+            pickUpObject(objOnPlayerTileIndex);
+            return;
+        }
+
+        int interactX = position.x;
+        int interactY = position.y;
+
+        switch (direction) {
+            case UP:
+                interactY -= gp.tileSize;
+                break;
+            case DOWN:
+                interactY += gp.tileSize;
+                break;
+            case LEFT:
+                interactX -= gp.tileSize;
+                break;
+            case RIGHT:
+                interactX += gp.tileSize;
+                break;
+        }
+
+        solidArea.x = solidAreaDefaultX;
+        solidArea.y = solidAreaDefaultY;
+
+        int objIndex = getObjectIndex(interactX, interactY);
+
+        if(objIndex != 999) {
+            if (gp.obj[objIndex].type == SuperObject.TYPE_PICKUP) {
+                pickUpObject(objIndex);
+            }
+            else if (gp.obj[objIndex] instanceof Station) {
+                Station station = (Station) gp.obj[objIndex];
+                this.currentInteractionStation = station;
+
+                if (inventory != null) {
+                    boolean success = station.placeItem(inventory);
+
+                    if (success) {
+                        gp.ui.showMessage("You placed " + inventory.name);
+                        inventory = null;
+                    }
+                }
+                else {
+                    Item itemTaken = station.takeItem();
+
+                    if (itemTaken != null) {
+                        inventory = itemTaken;
+                        gp.ui.showMessage("You took " + inventory.name);
+                    } else {
+                        gp.ui.showMessage("Nothing to take yet!");
+                    }
+                }
+            }
+        } else {
+            if(inventory != null){
+                dropObject();
+            }
         }
     }
 
     public void pickUpObject(int index){
+
         if(index != 999){
             if(inventory == null){
-                inventory = gp.obj[index];
+                inventory = (Item) gp.obj[index];
                 gp.obj[index] = null;
                 gp.ui.showMessage("You picked up object " + inventory.name);
             } else {
@@ -162,17 +256,6 @@ public class Player extends Entity {
     }
 
     public void interact(){
-        // Periksa objek yang bisa diambil di petak pemain saat ini terlebih dahulu
-        solidArea.x = solidAreaDefaultX; // Pastikan offset solidArea direset untuk pemeriksaan ini
-        solidArea.y = solidAreaDefaultY;
-        int objOnPlayerTileIndex = getObjectIndex(position.x, position.y);
-
-        if (objOnPlayerTileIndex != 999 && gp.obj[objOnPlayerTileIndex].type == SuperObject.TYPE_PICKUP) {
-            pickUpObject(objOnPlayerTileIndex);
-            return; // Objek diambil, hentikan interaksi lebih lanjut untuk penekanan tombol ini
-        }
-
-        // Jika tidak ada objek yang bisa diambil ditemukan di petak saat ini, lanjutkan dengan memeriksa petak di depan
         int interactX = position.x;
         int interactY = position.y;
 
@@ -191,22 +274,22 @@ public class Player extends Entity {
                 break;
         }
 
-        // Reset offset solidArea pemain ke default sebelum memeriksa objek di depan
         solidArea.x = solidAreaDefaultX;
         solidArea.y = solidAreaDefaultY;
 
         int objIndex = getObjectIndex(interactX, interactY);
 
         if(objIndex != 999) {
-            if (gp.obj[objIndex].type == SuperObject.TYPE_PICKUP) {
-                pickUpObject(objIndex);
-            } else {
+            if (gp.obj[objIndex] instanceof Station) {
+                Station station = (Station) gp.obj[objIndex];
+                this.currentInteractionStation = station;
                 gp.obj[objIndex].interact(this);
+            } else {
+                gp.ui.showMessage("No interaction");
+                this.currentInteractionStation = null;
             }
         } else {
-            if(inventory != null){
-                dropObject();
-            }
+            gp.ui.showMessage("No station to interact in front of you!");
         }
     }
 
