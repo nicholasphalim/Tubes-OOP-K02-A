@@ -1,14 +1,14 @@
-package object;
+package ingredient;
 
 import main.GamePanel;
+import preparable.Preparable;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
 
-public class OBJ_Dough extends SuperObject{
-    public OBJ_Dough(GamePanel gp){
-        super(gp);
-        name = "Dough";
+public class Dough extends Ingredient implements Preparable {
+    public Dough(GamePanel gp) {
+        super("Dough", gp);
         try {
             image = ImageIO.read(getClass().getResourceAsStream("/objects/dough.png"));
         } catch (IOException e) {
@@ -17,6 +17,4 @@ public class OBJ_Dough extends SuperObject{
         collision = false;
         type = TYPE_PICKUP;
     }
-
-  
 }

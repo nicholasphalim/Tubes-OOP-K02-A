@@ -1,14 +1,18 @@
 package station;
 
 import java.util.Stack;
+
+import entity.Chef;
 import inventory.Plate;
+import main.GamePanel;
 
 public class WashingStation extends Station {
     private boolean isSink;
     private Stack<Plate> dirtyPlates;
     private Stack<Plate> cleanPlates;
 
-    public WashingStation(boolean isSink) {
+    public WashingStation(GamePanel gp, boolean isSink) {
+        super(gp);
         this.isSink = isSink;
         this.dirtyPlates = new Stack<>();
         this.cleanPlates = new Stack<>();

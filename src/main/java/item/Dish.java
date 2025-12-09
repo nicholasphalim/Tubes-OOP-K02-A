@@ -1,26 +1,51 @@
 package item;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import ingredient.Ingredient;
 import ingredient.State;
+import main.GamePanel;
 import preparable.Preparable;
 import recipe.Recipe;
 
+import javax.imageio.ImageIO;
+
 public class Dish extends Item {
-    private String name;
     private List<Preparable> components;
     private boolean isCooked;
 
-    public Dish(String name, List<Preparable> components, int x, int y) {
-        super(x, y);
-        this.name = name;
+    public Dish(List<Preparable> components, GamePanel gp) {
+        super(gp);
         this.components = components;
+        this.name = generateName();
         this.isCooked = checkAllCooked();
+        try {
+            image = ImageIO.read(getClass().getResourceAsStream("/objects/dough.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public String getName(){
+    private String generateName() {
+        if (components == null || components.isEmpty()) {
+            return "Empty Dish";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < components.size(); i++) {
+            Item item = (Item) components.get(i);
+            sb.append(item.name);
+
+            if (i < components.size() - 1) {
+                sb.append(" + ");
+            }
+        }
+        return sb.toString();
+    }
+
+    public String getDishName(){
         return name;
     }
 
@@ -39,6 +64,10 @@ public class Dish extends Item {
             }
         }
         return true;
+    }
+
+    public void setCooked(boolean b){
+        isCooked = b;
     }
 
     public boolean isDone(Recipe recipe) {

@@ -1,12 +1,15 @@
 package inventory;
 
+import main.GamePanel;
+import preparable.Preparable;
+
 import java.util.ArrayList;
 
 public class Plate extends KitchenUtensils {
     private boolean isClean;
 
-    public Plate() {
-        super();
+    public Plate(GamePanel gp) {
+        super(gp);
         this.isClean = true;
     }
 

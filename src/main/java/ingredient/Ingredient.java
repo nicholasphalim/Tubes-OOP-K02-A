@@ -1,15 +1,17 @@
 package ingredient;
 
+import main.GamePanel;
 import preparable.Preparable;
 import item.Item;
 
 public class Ingredient extends Item implements Preparable {
-    private String name;
+    private String ingName;
     private State state;
 
-    public Ingredient (String name, int x, int y) {
-        super(x, y);
+    public Ingredient (String name, GamePanel gp) {
+        super(gp);
         this.name = name;
+        this.ingName = name;
         this.state = State.RAW;
     }
 

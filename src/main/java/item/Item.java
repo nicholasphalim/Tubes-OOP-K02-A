@@ -1,9 +1,12 @@
 package item;
 
-import entity.Entity;
+import main.GamePanel;
+import object.SuperObject;
 
-public abstract class Item extends Entity{
-    public Item(int x, int y){
-        super(x, y);
+
+public abstract class Item extends SuperObject {
+    public Item(GamePanel gp) {
+        super(gp);
+        this.type = TYPE_PICKUP;
     }
 }

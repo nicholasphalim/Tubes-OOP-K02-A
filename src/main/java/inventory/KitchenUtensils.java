@@ -1,12 +1,17 @@
 package inventory;
 
+import item.Item;
+import main.GamePanel;
+import preparable.Preparable;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class KitchenUtensils {
+public class KitchenUtensils extends Item {
     protected List<Preparable> contents;
 
-    public KitchenUtensils() {
+    public KitchenUtensils(GamePanel gp) {
+        super(gp);
         this.contents = new ArrayList<>();
     }
 
