@@ -2,6 +2,7 @@ package station;
 
 import entity.Chef;
 import ingredient.Ingredient;
+import ingredient.State;
 import item.Dish;
 import item.Item;
 import main.GamePanel;
@@ -38,44 +39,69 @@ public class AssemblyStation extends Station {
         return ingredients.isEmpty();
     }
 
-    @Override
-    public boolean placeItem(Item item) {
-        if (item instanceof Dish) {
-            Dish dish = (Dish) item;
-            List<Preparable> contents = dish.getComponents();
-            if (ingredients.size() + contents.size() > 5) {
-                gp.ui.showMessage("Station is too full!");
-                return false;
-            }
-
-            ingredients.addAll(contents);
-
-            if (!ingredients.isEmpty()) {
-                this.itemOnStation = (Item) ingredients.get(ingredients.size() - 1);
-            }
-
-            gp.ui.showMessage("Added contents of " + item.name);
-            return true;
+    public boolean canAccept(Item item) {
+        if (!(item instanceof Ingredient) && !(item instanceof Dish)) {
+            return false;
         }
 
-        else if (item instanceof Preparable) {
+        int incomingSize = (item instanceof Dish) ? ((Dish) item).getComponents().size() : 1;
+        if (ingredients.size() + incomingSize > 5) {
+            return false;
+        }
 
-            if (ingredients.size() >= 5) {
-                gp.ui.showMessage("Station is full!");
-                return false;
-            }
-
-            ingredients.add((Preparable) item);
-            gp.ui.showMessage("Added " + item.name);
-
-            this.itemOnStation = item;
+        if (ingredients.isEmpty()) {
             return true;
         }
 
         else {
-            gp.ui.showMessage("Cannot place this item here!");
+            if (item instanceof Ingredient) {
+                if (((Ingredient) item).getState() == State.RAW) {
+                    return false;
+                }
+            }
+
+            for (Preparable p : ingredients) {
+                if (p instanceof Ingredient) {
+                    if (((Ingredient) p).getState() == State.RAW) {
+                        return false; // Ditolak
+                    }
+                }
+            }
+
+            return true;
         }
-        return false;
+    }
+
+    @Override
+    public boolean placeItem(Item item) {
+        if (!canAccept(item)) {
+            if (ingredients.size() >= 5) {
+                gp.ui.showMessage("Station is full!");
+            } else if (!ingredients.isEmpty()) {
+                gp.ui.showMessage("Cannot assemble RAW items!");
+            } else {
+                gp.ui.showMessage("Cannot place this item!");
+            }
+            return false;
+        }
+
+
+        if (item instanceof Dish) {
+            Dish dish = (Dish) item;
+            ingredients.addAll(dish.getComponents());
+            gp.ui.showMessage("Added contents of " + item.name);
+        }
+        else if (item instanceof Ingredient) {
+            ingredients.add((Preparable) item);
+            gp.ui.showMessage("Added " + item.name);
+        }
+
+        // Update Visual Item terakhir
+        if (!ingredients.isEmpty()) {
+            this.itemOnStation = (Item) ingredients.get(ingredients.size() - 1);
+        }
+
+        return true;
     }
 
     @Override
@@ -84,15 +110,22 @@ public class AssemblyStation extends Station {
             return null;
         }
 
-        List<Preparable> componentsForDish = new ArrayList<>(ingredients);
+        if(ingredients.size() == 1) {
+            Ingredient temp  = (Ingredient) ingredients.get(0);
+            ingredients.clear();
+            this.itemOnStation = null;
+            return temp;
+        } else {
+            List<Preparable> componentsForDish = new ArrayList<>(ingredients);
 
-        Dish newDish = new Dish(componentsForDish, gp);
+            Dish newDish = new Dish(componentsForDish, gp);
 
-        ingredients.clear();
-        this.itemOnStation = null;
+            ingredients.clear();
+            this.itemOnStation = null;
 
-        gp.ui.showMessage("Picked up " + newDish.getDishName());
-        return newDish;
+            gp.ui.showMessage("Picked up " + newDish.getDishName());
+            return newDish;
+        }
     }
 
     public void showListIngredients() {

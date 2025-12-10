@@ -64,12 +64,10 @@ public class CookingStation extends Station {
     public void draw(Graphics2D g2, GamePanel gp) {
         super.draw(g2, gp);
 
-
         Item itemInOven = cookingDevice.peekItem();
         if (itemInOven != null && itemInOven.image != null) {
             g2.drawImage(itemInOven.image, x + 12, y + 12, 24, 24, null);
         }
-
 
         if (cookingDevice.isCooking() || cookingDevice.getProgress() > 0) {
 

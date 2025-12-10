@@ -4,11 +4,16 @@ import entity.Action;
 import entity.Chef;
 import ingredient.Ingredient;
 import ingredient.State;
+import item.Dish;
+import item.Item;
 import main.GamePanel;
+import preparable.Preparable;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CuttingStation extends Station{
 
@@ -18,6 +23,9 @@ public class CuttingStation extends Station{
     private final int PROGRESS_UPDATE_INTERVAL_MS = 100;
     public volatile boolean cutting = false;
     private Chef currentChef;
+
+    private List<Preparable> ingredientsStack;
+    private final int MAX_CAPACITY = 5;
 
     public CuttingStation(GamePanel gp) {
         super(gp);
@@ -35,10 +43,107 @@ public class CuttingStation extends Station{
         solidAreaDefaultY = solidArea.y;
 
         currentCuttingProgress = 0;
+        ingredientsStack = new ArrayList<>();
     }
 
     public int getCurrentCuttingProgress() {
         return currentCuttingProgress;
+    }
+
+    public boolean canAccept(Item item) {
+        if (!(item instanceof Ingredient) && !(item instanceof Dish)) {
+            return false;
+        }
+
+        int incomingSize = (item instanceof Dish) ? ((Dish) item).getComponents().size() : 1;
+        if (ingredientsStack.size() + incomingSize > 5) {
+            return false;
+        }
+
+        if (ingredientsStack.isEmpty()) {
+            return true;
+        } else {
+            if (item instanceof Ingredient) {
+                if (((Ingredient) item).getState() == State.RAW) {
+                    return false;
+                }
+            }
+
+            for (Preparable p : ingredientsStack) {
+                if (p instanceof Ingredient) {
+                    if (((Ingredient) p).getState() == State.RAW) {
+                        return false; // Ditolak
+                    }
+                }
+            }
+            return true;
+        }
+    }
+
+    @Override
+    public boolean placeItem(Item item) {
+        if (cutting) {
+            gp.ui.showMessage("Wait for cutting to finish!");
+            return false;
+        }
+
+        if (ingredientsStack.isEmpty()) {
+            if (item instanceof Dish) {
+                ingredientsStack.addAll(((Dish) item).getComponents());
+            } else if (item instanceof Ingredient) {
+                ingredientsStack.add((Preparable) item);
+            }
+            updateVisualItem();
+            gp.ui.showMessage("Placed " + item.name);
+            return true;
+        } else {
+            if (!canAccept(item)) {
+                gp.ui.showMessage("Cannot assemble/place here!");
+                return false;
+            }
+
+            if (item instanceof Dish) {
+                ingredientsStack.addAll(((Dish) item).getComponents());
+            } else {
+                ingredientsStack.add((Preparable) item);
+            }
+            updateVisualItem();
+            gp.ui.showMessage("Added " + item.name);
+            return true;
+        }
+    }
+
+    @Override
+    public Item takeItem() {
+        if (cutting) {
+            gp.ui.showMessage("Finish cutting first!");
+            return null;
+        }
+
+        if (ingredientsStack.isEmpty()) return null;
+
+        if (ingredientsStack.size() == 1) {
+            Ingredient temp = (Ingredient) ingredientsStack.get(0);
+            ingredientsStack.clear();
+            this.itemOnStation = null;
+            return temp;
+        }
+        else {
+            List<Preparable> componentsForDish = new ArrayList<>(ingredientsStack);
+            Dish newDish = new Dish(componentsForDish, gp);
+            ingredientsStack.clear();
+            this.itemOnStation = null;
+            gp.ui.showMessage("Picked up " + newDish.getDishName());
+            return newDish;
+        }
+    }
+
+    private void updateVisualItem() {
+        if (!ingredientsStack.isEmpty()) {
+            this.itemOnStation = (Item) ingredientsStack.get(ingredientsStack.size() - 1);
+        } else {
+            this.itemOnStation = null;
+        }
     }
 
     @Override
@@ -87,30 +192,25 @@ public class CuttingStation extends Station{
                 while (currentCuttingProgress < 100) {
 
                     if (isChefInRange(currentChef) && cutting) {
-
                         currentChef.busyState = Action.CUTTING;
-
                         currentCuttingProgress += (PROGRESS_UPDATE_INTERVAL_MS * 100) / TOTAL_CUTTING_DURATION_MS;
                         if (currentCuttingProgress > 100) currentCuttingProgress = 100;
-
-
                         Thread.sleep(PROGRESS_UPDATE_INTERVAL_MS);
 
                     } else {
                         if (!isChefInRange(currentChef)) {
                             cutting = false;
-
                             if (currentChef != null && currentChef.busyState == Action.CUTTING) {
                                 currentChef.busyState = null;
                             }
                         }
-
                         Thread.sleep(PROGRESS_UPDATE_INTERVAL_MS);
                     }
                 }
 
                 if (currentCuttingProgress >= 100) {
                     ing.changeState(State.CHOPPED);
+                    ing.updateImage();
                     itemOnStation.name = "Chopped " + itemOnStation.name;
                     chef.gp.ui.showMessage("Chopping Finished!");
                 }
@@ -169,5 +269,27 @@ public class CuttingStation extends Station{
         }
 
         return stationRect.intersects(interactionRect);
+    }
+
+    public void draw(Graphics2D g2, GamePanel gp) {
+        super.draw(g2, gp);
+
+        if (cutting && currentCuttingProgress < 100) {
+            int barWidth = 36;
+            int barHeight = 6;
+            int barX = x + (gp.tileSize - barWidth) / 2;
+            int barY = y + 10;
+
+            g2.setColor(Color.RED);
+            g2.fillRect(barX, barY, barWidth, barHeight);
+
+            g2.setColor(Color.GREEN);
+            int currentProgress = currentCuttingProgress;
+            int greenWidth = (int)((currentProgress / 100.0) * barWidth);
+            g2.fillRect(barX, barY, greenWidth, barHeight);
+
+            g2.setColor(Color.BLACK);
+            g2.drawRect(barX, barY, barWidth, barHeight);
+        }
     }
 }

@@ -22,7 +22,7 @@ public class Dish extends Item {
         this.name = generateName();
         this.isCooked = checkAllCooked();
         try {
-            image = ImageIO.read(getClass().getResourceAsStream("/objects/dough.png"));
+            image = ImageIO.read(getClass().getResourceAsStream("/objects/Dough_COOKED.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -68,6 +68,13 @@ public class Dish extends Item {
 
     public void setCooked(boolean b){
         isCooked = b;
+        if(isCooked){
+            for (Preparable p : components) {
+                Ingredient ing = (Ingredient) p;
+                ing.changeState(State.COOKED);
+            }
+        }
+
     }
 
     public boolean isDone(Recipe recipe) {
