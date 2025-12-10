@@ -1,5 +1,6 @@
 package item;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +73,7 @@ public class Dish extends Item {
             for (Preparable p : components) {
                 Ingredient ing = (Ingredient) p;
                 ing.changeState(State.COOKED);
+                ing.updateImage();
             }
         }
 
@@ -129,6 +131,28 @@ public class Dish extends Item {
         // }
 
         // return true;
+    }
+
+    @Override
+    public void draw(Graphics2D g2, GamePanel gp) {
+
+        if (getComponents() != null && !getComponents().isEmpty()) {
+            int offset = 0;
+            int margin = 4;
+            int size = gp.tileSize - (margin * 2);
+
+            for (Preparable p : getComponents()) {
+                Item item = (Item) p;
+
+                if (item.image != null) {
+                    g2.drawImage(item.image, x + margin, y + margin - offset, size, size, null);
+
+                    offset += 5;
+                }
+            }
+        } else {
+            super.draw(g2, gp);
+        }
     }
 
 }

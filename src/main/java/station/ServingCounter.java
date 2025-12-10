@@ -8,8 +8,8 @@ import main.GamePanel;
 import object.SuperObject;
 
 public class ServingCounter extends Station {
-    public ServingCounter() {
-        //super gp?
+    public ServingCounter(GamePanel gp) {
+        super(gp);
     }
 
     @Override

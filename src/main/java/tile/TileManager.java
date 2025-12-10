@@ -17,7 +17,7 @@ public class TileManager {
 
     public TileManager(GamePanel gp) {
         this.gp = gp;
-        tile = new Tile[12];
+        tile = new Tile[20];
         mapTileNum = new int[gp.maxScreenCol][gp.maxScreenRow];
         getTileImage();
         loadMap();
@@ -60,6 +60,18 @@ public class TileManager {
             tile[11] = new Tile(); //sink2
             tile[11].image = ImageIO.read(getClass().getResource("/tiles/serve.png"));
             tile[11].collision = true;
+            tile[12] = new Tile(); //sink2
+            tile[12].image = ImageIO.read(getClass().getResource("/tiles/ingstorage.png"));
+            tile[12].collision = true;
+            tile[13] = new Tile(); //sink2
+            tile[13].image = ImageIO.read(getClass().getResource("/tiles/ingstorage.png"));
+            tile[13].collision = true;
+            tile[14] = new Tile(); //sink2
+            tile[14].image = ImageIO.read(getClass().getResource("/tiles/ingstorage.png"));
+            tile[14].collision = true;
+            tile[15] = new Tile(); //sink2
+            tile[15].image = ImageIO.read(getClass().getResource("/tiles/ingstorage.png"));
+            tile[15].collision = true;
 
         } catch (IOException e) {
             e.printStackTrace();

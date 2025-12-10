@@ -7,11 +7,12 @@ import main.GamePanel;
 import object.SuperObject;
 import item.Dish;
 import ingredient.Ingredient;
+import preparable.Preparable;
 
 public class TrashStation extends Station {
     
-    public TrashStation() {
-        //super gp?
+    public TrashStation(GamePanel gp) {
+        super(gp);
     }
 
     @Override
@@ -23,21 +24,27 @@ public class TrashStation extends Station {
 
     @Override
     public void interact(Chef chef) {
-        if (chef.getInventory() == null) {
-            return; //nothing to trash
-        } else {
-            if (this.canAccept(chef.getInventory())) {
-                this.placeItem(chef.getInventory());
-                chef.setInventory(null);
-            } else if (chef.getInventory() instanceof Plate) {
-                Plate plate = (Plate) chef.getInventory();
-                if (plate.getContents() != null) {
-                    //this.placeItem(plate.getContents());
-                    plate.clearContents();
-                }
-            }
-        }
-        this.itemOnStation = null; //langsung hilang setelah dibuang
+//        if (chef.getInventory() == null) {
+//            return; //nothing to trash
+//        } else {
+//            if (this.canAccept(chef.getInventory())) {
+//                this.placeItem(chef.getInventory());
+//                chef.setInventory(null);
+//            } else if (chef.getInventory() instanceof Plate) {
+//                Plate plate = (Plate) chef.getInventory();
+//                if (plate.getContents() != null) {
+//                    //this.placeItem(plate.getContents());
+//                    plate.clearContents();
+//                }
+//            }
+//        }
+//        this.itemOnStation = null; //langsung hilang setelah dibuang
+    }
+
+    @Override
+    public boolean placeItem(Item item) {
+        gp.ui.showMessage("Trashing " + item.name);
+        return true;
     }
 
     @Override

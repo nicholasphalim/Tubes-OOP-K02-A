@@ -4,9 +4,7 @@ import ingredient.Dough;
 import ingredient.Tomato;
 import item.Oven;
 import object.OBJ_Dough;
-import station.AssemblyStation;
-import station.CookingStation;
-import station.CuttingStation;
+import station.*;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -30,6 +28,8 @@ public class AssetSetter {
             int col = 0;
             int row = 0;
             int objIndex = 0;
+            WashingStation ws1 = null;
+            WashingStation ws2 = null;
 
             while (col < gp.maxScreenCol && row < gp.maxScreenRow) {
 
@@ -61,6 +61,71 @@ public class AssetSetter {
                             gp.obj[objIndex].y = row * gp.tileSize;
                             objIndex++;
                             break;
+
+                        case 7: // Ingredient Station
+                            gp.obj[objIndex] = new IngredientStorage(gp, new Dough(gp));
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 12: // Ingredient Station Dough
+                            gp.obj[objIndex] = new IngredientStorage(gp, new Dough(gp));
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 13: // Ingredient Station Tomato
+                            gp.obj[objIndex] = new IngredientStorage(gp, new Tomato(gp));
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 14: // Ingredient Station
+                            gp.obj[objIndex] = new IngredientStorage(gp, new Dough(gp));
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 15: // Ingredient Station
+                            gp.obj[objIndex] = new IngredientStorage(gp, new Dough(gp));
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 4: // trash Station
+                            gp.obj[objIndex] = new TrashStation(gp);
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 8: // trash Station
+                            gp.obj[objIndex] = new PlateStorage(gp);
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 10: // Washing Station (Clean Stack)
+                            gp.obj[objIndex] = new WashingStation(gp, false);
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            ws2 = (WashingStation) gp.obj[objIndex];
+                            objIndex++;
+                            break;
+
+                        case 6: // Washing Station
+                            gp.obj[objIndex] = new WashingStation(gp, true);
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            ws1 = (WashingStation) gp.obj[objIndex];
+                            objIndex++;
+                            break;
                     }
                     col++;
                 }
@@ -71,6 +136,7 @@ public class AssetSetter {
                 }
             }
             br.close();
+            ws1.setCleanStack(ws2);
 
         } catch (Exception e) {
             e.printStackTrace();

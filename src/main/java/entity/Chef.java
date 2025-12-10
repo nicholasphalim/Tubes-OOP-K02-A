@@ -1,5 +1,7 @@
 package entity;
 
+import inventory.Plate;
+import item.Dish;
 import item.Item;
 import main.GamePanel;
 import main.KeyHandler;
@@ -190,7 +192,7 @@ public class Chef extends Entity {
 
                     if (itemTaken != null) {
                         inventory = itemTaken;
-                        gp.ui.showMessage("You took " + inventory.name);
+//                        gp.ui.showMessage("You took " + inventory.name);
                     } else {
                         gp.ui.showMessage("Nothing to take yet!");
                     }
@@ -367,9 +369,57 @@ public class Chef extends Entity {
         int drawX = position.x - (drawWidth - gp.tileSize) / 2;
         int drawY = position.y - (drawHeight - gp.tileSize) ;
 
-
+        // Gambar chef
         g2.drawImage(image, drawX, drawY, drawWidth, drawHeight, null);
         g2.setColor(Color.red);
         g2.drawRect(position.x + solidArea.x, position.y + solidArea.y, solidArea.width, solidArea.height);
+
+        // Gambar item
+        if (inventory != null) {
+            int itemSize = (int) (gp.tileSize * 0.8);
+            int itemX = drawX + (drawWidth - itemSize) / 2;
+            int itemY = drawY + gp.tileSize/2;
+
+            // CASE PLATE
+            if (inventory instanceof Plate) {
+                Plate p = (Plate) inventory;
+
+                if (p.image != null) {
+                    g2.drawImage(p.image, itemX, itemY, itemSize, itemSize, null);
+                }
+
+                if (p.dish != null && p.dish instanceof Dish) {
+                    Dish d = (Dish) p.dish;
+                    int offset = 5;
+
+                    for (Preparable prep : d.getComponents()) {
+                        Item component = (Item) prep;
+                        if (component.image != null) {
+                            g2.drawImage(component.image, itemX, itemY - offset, itemSize, itemSize, null);
+                            offset += 6;
+                        }
+                    }
+                }
+            }
+            // CASE DISH
+            else if (inventory instanceof Dish) {
+                Dish d = (Dish) inventory;
+                int offset = 0;
+
+                for (Preparable prep : d.getComponents()) {
+                    Item component = (Item) prep;
+                    if (component.image != null) {
+                        g2.drawImage(component.image, itemX, itemY - offset, itemSize, itemSize, null);
+                        offset += 6;
+                    }
+                }
+            }
+            // CASE SINGLE ITEM
+            else {
+                if (inventory.image != null) {
+                    g2.drawImage(inventory.image, itemX, itemY, itemSize, itemSize, null);
+                }
+            }
+        }
     }
 }

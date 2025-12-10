@@ -27,7 +27,7 @@ public class GamePanel extends JPanel implements Runnable {
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter as = new AssetSetter(this);
     public Chef chef = new Chef(this, keyH);
-    public SuperObject[] obj = new SuperObject[30];
+    public SuperObject[] obj = new SuperObject[64];
     public UI ui = new UI(this);
 
     public GamePanel() {
