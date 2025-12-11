@@ -30,7 +30,5 @@ public class SuperObject {
     }
 
     public void interact(Entity entity) {
-
-
     }
 }

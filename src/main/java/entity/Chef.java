@@ -1,5 +1,7 @@
 package entity;
 
+import ingredient.Dough;
+import ingredient.State;
 import inventory.Plate;
 import item.Dish;
 import item.Item;
@@ -245,7 +247,7 @@ public class Chef extends Entity {
                     }
                 }
             }
-            else if (inventory instanceof Dish) {
+            else if (inventory instanceof Dish || (inventory instanceof Dough && ((Dough) inventory).getState() == State.CHOPPED)) {
                 boolean success = cs.placeItem(inventory);
                 if (success) {
                     gp.ui.showMessage("Placed dish into oven");
@@ -300,28 +302,35 @@ public class Chef extends Entity {
     }
 
     public void dropObject(){
-        if(inventory != null){
+        if (inventory != null) {
 
-            int dropX = position.x;
-            int dropY = position.y;
+            int currentX = position.x;
+            int currentY = position.y;
+
+            int dropX = currentX;
+            int dropY = currentY;
 
             switch (direction) {
-                case UP:
-                    dropY -= gp.tileSize;
-                    break;
-                case DOWN:
-                    dropY += gp.tileSize;
-                    break;
-                case LEFT:
-                    dropX -= gp.tileSize;
-                    break;
-                case RIGHT:
-                    dropX += gp.tileSize;
-                    break;
+                case UP: dropY -= gp.tileSize; break;
+                case DOWN: dropY += gp.tileSize; break;
+                case LEFT: dropX -= gp.tileSize; break;
+                case RIGHT: dropX += gp.tileSize; break;
+            }
+
+            int col = (dropX + gp.tileSize / 2) / gp.tileSize;
+            int row = (dropY + gp.tileSize / 2) / gp.tileSize;
+
+            if (col >= 0 && col < gp.maxScreenCol && row >= 0 && row < gp.maxScreenRow) {
+                int tileNum = gp.tm.mapTileNum[col][row];
+
+                if (gp.tm.tile[tileNum].collision) {
+                    dropX = currentX;
+                    dropY = currentY;
                 }
+            }
 
             for (int i = 0; i < gp.obj.length; i++) {
-                if(gp.obj[i] == null){
+                if (gp.obj[i] == null) {
                     gp.obj[i] = inventory;
 
                     gp.obj[i].x = dropX;

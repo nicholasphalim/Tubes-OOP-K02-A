@@ -1,7 +1,6 @@
 package main;
 
-import ingredient.Dough;
-import ingredient.Tomato;
+import ingredient.*;
 import item.Oven;
 import station.*;
 
@@ -61,8 +60,8 @@ public class AssetSetter {
                             objIndex++;
                             break;
 
-                        case 7: // Ingredient Station
-                            gp.obj[objIndex] = new IngredientStorage(gp, new Dough(gp));
+                        case 7: // Ingredient Station Chicken
+                            gp.obj[objIndex] = new IngredientStorage(gp, new Chicken(gp));
                             gp.obj[objIndex].x = col * gp.tileSize;
                             gp.obj[objIndex].y = row * gp.tileSize;
                             objIndex++;
@@ -82,15 +81,15 @@ public class AssetSetter {
                             objIndex++;
                             break;
 
-                        case 14: // Ingredient Station
-                            gp.obj[objIndex] = new IngredientStorage(gp, new Dough(gp));
+                        case 14: // Ingredient Station Cheese
+                            gp.obj[objIndex] = new IngredientStorage(gp, new Cheese(gp));
                             gp.obj[objIndex].x = col * gp.tileSize;
                             gp.obj[objIndex].y = row * gp.tileSize;
                             objIndex++;
                             break;
 
-                        case 15: // Ingredient Station
-                            gp.obj[objIndex] = new IngredientStorage(gp, new Dough(gp));
+                        case 15: // Ingredient Station Sausage
+                            gp.obj[objIndex] = new IngredientStorage(gp, new Sausage(gp));
                             gp.obj[objIndex].x = col * gp.tileSize;
                             gp.obj[objIndex].y = row * gp.tileSize;
                             objIndex++;

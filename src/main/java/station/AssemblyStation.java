@@ -265,7 +265,7 @@ public class AssemblyStation extends Station {
 
                     g2.drawImage(item.image, drawX, drawY, itemSize, itemSize, null);
 
-                    stackOffset += 6;
+                    stackOffset += 2;
                 }
             }
         }

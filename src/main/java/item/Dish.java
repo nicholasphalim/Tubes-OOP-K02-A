@@ -17,6 +17,7 @@ import javax.imageio.ImageIO;
 public class Dish extends Item {
     private List<Preparable> components;
     private boolean isCooked;
+    private boolean isBurned =  false;
 
     public Dish(List<Preparable> components, GamePanel gp) {
         super(gp);
@@ -78,6 +79,14 @@ public class Dish extends Item {
             }
         }
 
+    }
+
+    public void setBurned(boolean burned) {
+        this.isBurned = burned;
+    }
+
+    public boolean isBurned() {
+        return isBurned;
     }
 
     public boolean isDone(Recipe recipe) {
@@ -148,7 +157,7 @@ public class Dish extends Item {
                 if (item.image != null) {
                     g2.drawImage(item.image, x + margin, y + margin - offset, size, size, null);
 
-                    offset += 5;
+                    offset += 2;
                 }
             }
         } else {

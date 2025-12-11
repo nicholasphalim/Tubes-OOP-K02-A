@@ -13,7 +13,7 @@ public class Main {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-        frame.setTitle("Hello");
+        frame.setTitle("NimonsCooked");
 
         gamePanel.startGameThread();
         gamePanel.setupGame();

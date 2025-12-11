@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.Random;
 
 import item.Dish;
+import main.GamePanel;
 import recipe.Recipe;
 
 public class OrderList {
 
+    private GamePanel gp;
     private List<Order> orders;
     private List<Recipe> availableRecipes;
 
@@ -20,10 +22,10 @@ public class OrderList {
     private final int BASE_PENALTY = 20;    private final int BASE_TIME_LIMIT = 90;
     private double timeSinceLastSpawn = 0.0;
     private final double SPAWN_INTERVAL = 10.0;
-    public OrderList() {
+    public OrderList(GamePanel gp) {
+        this.gp = gp;
         this.orders = new ArrayList<>();
         this.availableRecipes = new ArrayList<>();
-        // setupRecipes() dipanggil dari luar (GamePanel) atau disini
     }
 
     public void addRecipe(Recipe r) {
@@ -31,6 +33,7 @@ public class OrderList {
     }
 
     public void update() {
+        if(gp.gameState != gp.playState) return;
         double delta = 1.0 / 60.0;
 
         if (!availableRecipes.isEmpty() && orders.size() < MAX_ORDERS) {
@@ -48,13 +51,13 @@ public class OrderList {
 
         for (int i = orders.size() - 1; i >= 0; i--) {
             Order o = orders.get(i);
-
             boolean isExpired = o.update(delta);
 
             if (isExpired) {
+                gp.addFailure();
+                GamePanel.addScore(-o.getPenalty());
+
                 System.out.println("Order Expired: " + o.getRecipe().getName());
-                // Penalti jika expired? Opsional
-                // GamePanel.score -= BASE_PENALTY;
                 orders.remove(i);
             }
         }

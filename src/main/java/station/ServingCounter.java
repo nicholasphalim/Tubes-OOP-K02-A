@@ -66,6 +66,7 @@ public class ServingCounter extends Station {
 
     public void serve(Plate plate) {
         if (plate == null || plate.dish == null) return;
+        if (gp.gameState != gp.playState) return;
 
         System.out.println("Serving Counter");
 
@@ -78,11 +79,15 @@ public class ServingCounter extends Station {
 
             gp.ui.showMessage("Served Correctly! +" + score);
             System.out.println("Served Correctly! +" + score);
-            gp.playerScore += score;        } else {
+            GamePanel.addScore(matched.getReward());
+            gp.resetFailureCount();
+            gp.playerScore += score;
+        } else {
             gp.ui.showMessage("Wrong Order! -" + penalty);
             System.out.println("Wrong Order! -" + penalty);
-            gp.playerScore -= penalty;        }
-
+            GamePanel.addScore(-penalty);
+            gp.addFailure();
+        }
         consume(plate);
     }
 

@@ -22,11 +22,11 @@ public class Order {
 
     public boolean update(double deltaTime) {
         currentTime -= deltaTime;
-        return currentTime <= 0; // Return true jika waktu habis (expired)
+        return currentTime <= 0;
     }
 
     public float getProgress() {
-        return currentTime / maxTime; // Untuk UI bar (0.0 sampai 1.0)
+        return currentTime / maxTime;
     }
 
     public int getId() { return id; }
@@ -34,4 +34,5 @@ public class Order {
     public int getReward() { return reward; }
     public int getPenalty() { return penalty; }
     public float getCurrentTime() { return currentTime; }
+    public float getMaxTime() { return maxTime; }
 }

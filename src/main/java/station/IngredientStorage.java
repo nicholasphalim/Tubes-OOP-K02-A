@@ -240,6 +240,7 @@ public class IngredientStorage extends Station {
         if (image != null) {
             g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
         }
+        g2.drawImage(ingredientItem.image, x+gp.tileSize/4, y+gp.tileSize/2, gp.tileSize/2, gp.tileSize/2, null);
 
         if (plate != null && plate.image != null) {
             int margin = 4;
@@ -254,7 +255,7 @@ public class IngredientStorage extends Station {
                 Item item = (Item) p;
 
                 if (item.image != null) {
-                    int itemMargin = 10;
+                    int itemMargin = 4;
                     int itemSize = gp.tileSize - (itemMargin * 2);
 
                     int drawX = x + itemMargin;
@@ -266,7 +267,7 @@ public class IngredientStorage extends Station {
 
                     g2.drawImage(item.image, drawX, drawY, itemSize, itemSize, null);
 
-                    stackOffset += 6;
+                    stackOffset += 2;
                 }
             }
         }
