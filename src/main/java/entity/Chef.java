@@ -93,14 +93,20 @@ public class Chef extends Entity {
 
     public void update() {
 
+        
+        if (isDashing) {
+            handleDash();
+            return;
+        }
+        
+        if (this != gp.activeChef) {
+            return; 
+        }
+        
         handleDash();
 
         if (isDashing) {
             return;
-        }
-
-        if (this != gp.activeChef) {
-            return; 
         }
 
         boolean isMoving = false;
