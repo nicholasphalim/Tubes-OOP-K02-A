@@ -18,6 +18,7 @@ public class ServingCounter extends Station {
     //instantiate with order list
     public ServingCounter(GamePanel gp, OrderList orderList) {
         super(gp);
+        name = "Serving Counter";
         this.orderList = orderList;
     }
 
@@ -49,7 +50,13 @@ public class ServingCounter extends Station {
     }
 
     public void serve(Plate plate) {
-        boolean correct = orderList.validateOrder(plate.getContents());
+        if (!(plate.getContents().get(0) instanceof Dish)) {
+            gp.ui.showMessage("Plate does not contain a dish!");
+            GamePanel.addScore(-penalty);
+            return;
+        }
+
+        boolean correct = orderList.validateOrder((Dish) plate.getContents().get(0));
         if (correct) {
             gp.ui.showMessage("Served dish correctly! +" + orderList.getOrders().get(0).getReward() + " points.");
             GamePanel.addScore(orderList.getOrders().get(0).getReward());

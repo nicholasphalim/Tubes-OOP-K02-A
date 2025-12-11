@@ -15,6 +15,7 @@ public class PlateStorage extends Station {
 
     public PlateStorage(GamePanel gp) {
         super(gp);
+        name = "Plate Storage";
         try {
              this.plateStack = new Stack<>();
         } catch (OutOfMemoryError e) {
