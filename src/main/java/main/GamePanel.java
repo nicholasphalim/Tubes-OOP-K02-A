@@ -12,6 +12,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GamePanel extends JPanel implements Runnable {
+    public static int score = 0;
+
     final int originalTileSize = 16;
     final int scale = 3;
 
@@ -109,5 +111,13 @@ public class GamePanel extends JPanel implements Runnable {
         ui.draw(g2);
 
         g2.dispose();
+    }
+
+    public static int getScore() {
+        return score;
+    }
+
+    public static void addScore(int diff) {
+        GamePanel.score += diff;
     }
 }

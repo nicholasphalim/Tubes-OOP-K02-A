@@ -6,7 +6,7 @@ import preparable.Preparable;
 import javax.imageio.ImageIO;
 import java.io.IOException;
 
-public class Tomato extends Ingredient implements Preparable {
+public class Tomato extends Ingredient {
     public Tomato(GamePanel gp) {
         super("Tomato", gp);
         try {
@@ -16,5 +16,16 @@ public class Tomato extends Ingredient implements Preparable {
         }
         collision = false;
         type = TYPE_PICKUP;
+    }
+
+    public Tomato(Tomato target) {
+        super(target);
+        this.image = target.image;
+        this.collision = target.collision;
+        this.type = target.type;
+    }
+
+    public Tomato copy() {
+        return new Tomato(this);
     }
 }

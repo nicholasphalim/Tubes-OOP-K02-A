@@ -1,5 +1,15 @@
 package station;
 
+import ingredient.*;
+import item.*;
+import entity.*;
+import main.GamePanel;
+import object.SuperObject;
+import inventory.Plate;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.io.IOException;
 import ingredient.Dough;
 import ingredient.Ingredient;
 import ingredient.State;
@@ -22,6 +32,10 @@ public class IngredientStorage extends Station {
 
     private Plate plate;
 
+    //instantiate with specific ingredient
+    public IngredientStorage(GamePanel gp, Ingredient ingredient) {
+        super(gp);
+        name = "Ingredient Storage";
     public IngredientStorage(GamePanel gp, Ingredient ingredient) {
         super(gp);
         this.ingredientItem = ingredient;
@@ -29,15 +43,9 @@ public class IngredientStorage extends Station {
         ingredients = new ArrayList<>();
     }
 
-    public Ingredient getIngredientItem() throws CloneNotSupportedException {
-        try {
-            Ingredient newIng = this.ingredientItem.clone();
-            newIng.changeState(State.RAW);
-            return newIng;
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-            return null;
-        }
+    public Ingredient getIngredientItem() {
+        gp.ui.showMessage("Took " + this.ingredientName + " from storage.");
+        return this.ingredientItem.copy();
     }
 
     public String getIngredientName() {

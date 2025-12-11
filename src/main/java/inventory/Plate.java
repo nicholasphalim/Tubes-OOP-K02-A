@@ -4,6 +4,8 @@ import item.Dish;
 import item.Item;
 import main.GamePanel;
 import preparable.Preparable;
+import item.Item;
+import item.Dish;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -34,11 +36,11 @@ public class Plate extends KitchenUtensils {
         return 1; 
     }
 
-    public boolean canAccept(Preparable ingredient) {
+    public boolean canAccept(Item ingredient) {
         return isClean; 
     }
 
-    public void addIngredient(Preparable ingredient) {
+    public void addIngredient(Item ingredient) {
         if (canAccept(ingredient)) {
             this.contents.add(ingredient);
         }

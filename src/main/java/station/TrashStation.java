@@ -1,7 +1,7 @@
 package station;
 
 import item.*;
-import entity.Chef;
+import entity.*;
 import inventory.Plate;
 import main.GamePanel;
 import object.SuperObject;
@@ -13,7 +13,20 @@ import javax.imageio.ImageIO;
 import java.io.IOException;
 
 public class TrashStation extends Station {
+    //singleton PATTERN
+    //use getInstance to get the single instance of TrashStation
+    private static TrashStation instance;
     
+    private TrashStation(GamePanel gp) {
+        super(gp);
+        name = "Trash Station";
+    }
+
+    public static TrashStation getInstance(GamePanel gp) {
+        if (instance == null) {
+            instance = new TrashStation(gp);
+        }
+        return instance;
     public TrashStation(GamePanel gp) {
         super(gp);
         name = "Trash Station";
@@ -68,6 +81,7 @@ public class TrashStation extends Station {
 
     @Override
     public Item takeItem() {
-        return null; //tidak bisa diambil kembali
+        gp.ui.showMessage("Cannot take items from Trash Station!");
+        return null;
     }
 }

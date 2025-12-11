@@ -7,12 +7,20 @@ import main.GamePanel;
 import object.SuperObject;
 
 import java.util.Stack;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.io.IOException;
 
 public class PlateStorage extends Station {
     private Stack<Plate> plateStack;
 
-    public PlateStorage(GamePanel gp) {
+    //singleton PATTERN
+    //use getInstance to get the single instance of PlateStorage
+    private static PlateStorage instance;
+
+    private PlateStorage(GamePanel gp) {
         super(gp);
+        name = "Plate Storage";
         try {
              this.plateStack = new Stack<>();
              Plate plate1 = new Plate(gp);
@@ -26,9 +34,22 @@ public class PlateStorage extends Station {
         }
     }
 
+    public static PlateStorage getInstance(GamePanel gp) {
+        if (instance == null) {
+            instance = new PlateStorage(gp);
+        }
+        return instance;
+    }
+
+    public void addPlate(Plate plate) {
+        gp.ui.showMessage("Added a plate to storage.");
+        plateStack.push(plate);
+    }
+
     @Override
-    public boolean canAccept(Item plate) {
-        return false; // PlateStorage does not accept plates from chefs
+    public boolean canAccept(SuperObject plate) {
+        gp.ui.showMessage("Plate Storage does not accept items!");
+        return false;
     }
 
     @Override
@@ -41,10 +62,10 @@ public class PlateStorage extends Station {
     @Override
     public Plate takeItem() {
         if (plateStack.isEmpty()) {
-            System.out.println("Plate stack is empty");
+            gp.ui.showMessage("No plates left in storage!");
             return null;
         }
-        gp.ui.showMessage("Picked up Plate");
+        gp.ui.showMessage("Took a plate from storage.");
         return plateStack.pop();
     }
 }
