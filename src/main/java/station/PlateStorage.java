@@ -13,7 +13,11 @@ import java.io.IOException;
 public class PlateStorage extends Station {
     private Stack<Plate> plateStack;
 
-    public PlateStorage(GamePanel gp) {
+    //singleton PATTERN
+    //use getInstance to get the single instance of PlateStorage
+    private static PlateStorage instance;
+
+    private PlateStorage(GamePanel gp) {
         super(gp);
         name = "Plate Storage";
         try {
@@ -21,6 +25,13 @@ public class PlateStorage extends Station {
         } catch (OutOfMemoryError e) {
             System.err.println("Failed to initialize PlateStorage: " + e.getMessage());
         }
+    }
+
+    public static PlateStorage getInstance(GamePanel gp) {
+        if (instance == null) {
+            instance = new PlateStorage(gp);
+        }
+        return instance;
     }
 
     public void addPlate(Plate plate) {

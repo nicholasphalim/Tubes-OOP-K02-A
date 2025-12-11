@@ -12,9 +12,20 @@ import java.awt.*;
 import java.io.IOException;
 
 public class TrashStation extends Station {
+    //singleton PATTERN
+    //use getInstance to get the single instance of TrashStation
+    private static TrashStation instance;
     
-    public TrashStation(GamePanel gp) {
+    private TrashStation(GamePanel gp) {
         super(gp);
+        name = "Trash Station";
+    }
+
+    public static TrashStation getInstance(GamePanel gp) {
+        if (instance == null) {
+            instance = new TrashStation(gp);
+        }
+        return instance;
     }
 
     @Override
