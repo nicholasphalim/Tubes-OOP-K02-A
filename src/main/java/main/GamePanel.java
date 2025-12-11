@@ -1,7 +1,11 @@
 package main;
 
 import entity.Chef;
+import ingredient.Ingredient;
+import ingredient.State;
 import object.SuperObject;
+import order.OrderList;
+import recipe.Recipe;
 import tile.TileManager;
 
 import javax.swing.*;
@@ -29,6 +33,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Chef chef = new Chef(this, keyH);
     public SuperObject[] obj = new SuperObject[64];
     public UI ui = new UI(this);
+    public OrderList orderList = new OrderList();
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth,  screenHeight));
@@ -36,10 +41,15 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+        this.orderList = new OrderList();
     }
 
     public void setupGame(){
         as.setObject();
+        Recipe pizza_margherita = new Recipe("Pizza Margherita");
+         pizza_margherita.addIngredientRequirement(new Ingredient("Dough", this), State.COOKED);
+         pizza_margherita.addIngredientRequirement(new Ingredient("Tomato", this), State.COOKED);
+        orderList.addRecipe(pizza_margherita);
     }
 
     public void startGameThread() {
@@ -80,6 +90,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void update() {
         chef.update();
+        orderList.update();
     }
 
     public void paintComponent(Graphics g) {

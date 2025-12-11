@@ -7,9 +7,7 @@ import main.GamePanel;
 import main.KeyHandler;
 import object.SuperObject;
 import preparable.Preparable;
-import station.AssemblyStation;
-import station.CuttingStation;
-import station.Station;
+import station.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -179,28 +177,110 @@ public class Chef extends Entity {
                 Station station = (Station) gp.obj[objIndex];
                 this.currentInteractionStation = station;
 
-                if (inventory != null) {
-                    boolean success = station.placeItem(inventory);
-
-                    if (success) {
-                        gp.ui.showMessage("You placed " + inventory.name);
-                        inventory = null;
-                    }
+                if (station instanceof CookingStation) {
+                    handleCookingStationInteraction((CookingStation) station);
+                }
+                else if (station instanceof TrashStation) {
+                    handleTrashStationInteraction((TrashStation) station);
                 }
                 else {
-                    Item itemTaken = station.takeItem();
-
-                    if (itemTaken != null) {
-                        inventory = itemTaken;
-//                        gp.ui.showMessage("You took " + inventory.name);
-                    } else {
-                        gp.ui.showMessage("Nothing to take yet!");
-                    }
+                    handleGeneralStationInteraction(station);
                 }
             }
         } else {
             if(inventory != null){
                 dropObject();
+            }
+        }
+    }
+
+    private void handleTrashStationInteraction(TrashStation ts) {
+        if (inventory == null) return;
+
+        if (inventory instanceof Plate) {
+            Plate plate = (Plate) inventory;
+
+            if (plate.dish != null) {
+                boolean success = ts.placeItem(plate.dish);
+                if (success) {
+                    plate.dish = null;
+                    gp.ui.showMessage("Cleaned plate contents");
+                }
+            } else {
+                ts.placeItem(plate);
+            }
+        }
+        else {
+            boolean success = ts.placeItem(inventory);
+            if (success) {
+                inventory = null;
+            }
+        }
+    }
+
+    private void handleCookingStationInteraction(CookingStation cs) {
+
+        if (inventory != null) {
+
+            if (inventory instanceof Plate) {
+                Plate p = (Plate) inventory;
+                if (p.dish != null) {
+                    boolean success = cs.placeItem(p.dish);
+                    if (success) {
+                        gp.ui.showMessage("Placed dish into oven");
+                        p.dish = null;
+                    }
+                } else {
+
+                    Item cookedItem = cs.takeItem();
+                    if (cookedItem != null) {
+                        if (cookedItem instanceof Dish) {
+                            p.dish = (Dish) cookedItem;
+                            gp.ui.showMessage("Plated the cooked dish!");
+                        } else {
+                            gp.ui.showMessage("Took item with plate!");
+                        }
+                    } else {
+                        gp.ui.showMessage("Oven is empty!");
+                    }
+                }
+            }
+            else if (inventory instanceof Dish) {
+                boolean success = cs.placeItem(inventory);
+                if (success) {
+                    gp.ui.showMessage("Placed dish into oven");
+                    inventory = null;
+                }
+            }
+            else {
+                gp.ui.showMessage("Can only cook Dishes!");
+            }
+        }
+
+        else {
+            Item itemTaken = cs.takeItem();
+            if (itemTaken != null) {
+                inventory = itemTaken;
+                gp.ui.showMessage("Took " + itemTaken.name);
+            } else {
+                gp.ui.showMessage("Oven is empty!");
+            }
+        }
+    }
+
+    private void handleGeneralStationInteraction(Station station) {
+        if (inventory != null) {
+            boolean success = station.placeItem(inventory);
+            if (success) {
+                gp.ui.showMessage("You placed " + inventory.name);
+                inventory = null;
+            }
+        } else {
+            Item itemTaken = station.takeItem();
+            if (itemTaken != null) {
+                inventory = itemTaken;
+            } else {
+                gp.ui.showMessage("Nothing to take yet!");
             }
         }
     }

@@ -126,6 +126,13 @@ public class AssetSetter {
                             ws1 = (WashingStation) gp.obj[objIndex];
                             objIndex++;
                             break;
+
+                        case 11: // Serving Counter
+                            gp.obj[objIndex] = new ServingCounter(gp);
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
                     }
                     col++;
                 }

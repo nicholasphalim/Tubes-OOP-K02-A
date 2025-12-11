@@ -104,7 +104,6 @@ public class AssemblyStation extends Station {
             return true;
         }
 
-
         if (item instanceof Dish) {
             Dish dish = (Dish) item;
             ingredients.addAll(dish.getComponents());
@@ -115,9 +114,7 @@ public class AssemblyStation extends Station {
             gp.ui.showMessage("Added " + item.name);
         }
 
-
         reorderIngredients();
-
         return true;
     }
 
@@ -236,5 +233,5 @@ public class AssemblyStation extends Station {
                 }
             }
         }
-}
+    }
 }

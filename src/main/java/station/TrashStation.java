@@ -9,18 +9,28 @@ import item.Dish;
 import ingredient.Ingredient;
 import preparable.Preparable;
 
+import javax.imageio.ImageIO;
+import java.io.IOException;
+
 public class TrashStation extends Station {
     
     public TrashStation(GamePanel gp) {
         super(gp);
+        name = "Trash Station";
+        try {
+            // Pastikan Anda memiliki gambar untuk trash bin
+            image = ImageIO.read(getClass().getResourceAsStream("/tiles/trash.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    @Override
-    public boolean canAccept(SuperObject item) {
-        //menerima dish atau ingredient
-        boolean isAcceptable = (item instanceof Dish) || (item instanceof Ingredient);
-        return isAcceptable;
-    }
+//    @Override
+//    public boolean canAccept(Item item) {
+//        //menerima dish atau ingredient
+//        boolean isAcceptable = (item instanceof Dish) || (item instanceof Ingredient);
+//        return isAcceptable;
+//    }
 
     @Override
     public void interact(Chef chef) {
@@ -43,8 +53,17 @@ public class TrashStation extends Station {
 
     @Override
     public boolean placeItem(Item item) {
-        gp.ui.showMessage("Trashing " + item.name);
-        return true;
+        if (item instanceof Plate) {
+            gp.ui.showMessage("Can't trash plates!");
+            return false;
+        }
+
+        if (item instanceof Dish || item instanceof Ingredient) {
+            gp.ui.showMessage("Trashed " + item.name);
+            return true;
+        }
+
+        return false;
     }
 
     @Override

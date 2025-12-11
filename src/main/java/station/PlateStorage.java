@@ -2,6 +2,7 @@ package station;
 
 import inventory.Plate;
 import entity.Chef;
+import item.Item;
 import main.GamePanel;
 import object.SuperObject;
 
@@ -26,7 +27,7 @@ public class PlateStorage extends Station {
     }
 
     @Override
-    public boolean canAccept(SuperObject plate) {
+    public boolean canAccept(Item plate) {
         return false; // PlateStorage does not accept plates from chefs
     }
 

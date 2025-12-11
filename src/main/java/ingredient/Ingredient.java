@@ -22,6 +22,8 @@ public class Ingredient extends Item implements Preparable, Cloneable {
         return name;
     }
 
+    public String getIngName() {return ingName;}
+
     public State getState(){
         return state;
     }

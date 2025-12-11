@@ -4,6 +4,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import ingredient.Ingredient;
 import ingredient.State;
@@ -84,32 +85,32 @@ public class Dish extends Item {
 
         if (components.size() != recipe.size()) return false;
 
-        List<String> requiredNames = new ArrayList<>(recipe.getIngredientNames());
-        List<State> requiredStates = new ArrayList<>(recipe.getIngredientStates());
-
+        List<Ingredient> remaining = new ArrayList<>();
         for (Preparable p : components) {
-
             if (!(p instanceof Ingredient)) return false;
-            Ingredient ing = (Ingredient) p;
+            remaining.add((Ingredient) p);
+        }
 
-            String name = ing.getName();
-            State state = ing.getState();
+        for (Map.Entry<Ingredient, State> entry : recipe.getIngredientRequirements().entrySet()) {
+            String reqName = entry.getKey().getName();
+            State reqState = entry.getValue();
+//            System.out.println(reqName + " " + reqState);
 
             int foundIndex = -1;
-            for (int i = 0; i < requiredNames.size(); i++) {
-                if (name.equals(requiredNames.get(i)) && state == requiredStates.get(i)) {
+            for (int i = 0; i < remaining.size(); i++) {
+                Ingredient ing = remaining.get(i);
+//                System.out.println(ing.getIngName() + " " + ing.getState());
+                if (reqName.equals(ing.getIngName()) && ing.getState() == reqState) {
                     foundIndex = i;
                     break;
                 }
             }
 
             if (foundIndex == -1) return false;
-
-            requiredNames.remove(foundIndex);
-            requiredStates.remove(foundIndex);
+            remaining.remove(foundIndex);
         }
 
-        return requiredNames.isEmpty();
+        return remaining.isEmpty();
 
         
         // if (recipe == null) return false;

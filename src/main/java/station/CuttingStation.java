@@ -2,8 +2,10 @@ package station;
 
 import entity.Action;
 import entity.Chef;
+import ingredient.Dough;
 import ingredient.Ingredient;
 import ingredient.State;
+import inventory.Plate;
 import item.Dish;
 import item.Item;
 import main.GamePanel;
@@ -26,6 +28,8 @@ public class CuttingStation extends Station{
 
     private List<Preparable> ingredientsStack;
     private final int MAX_CAPACITY = 5;
+
+    private Plate plate;
 
     public CuttingStation(GamePanel gp) {
         super(gp);
@@ -51,7 +55,7 @@ public class CuttingStation extends Station{
     }
 
     public boolean canAccept(Item item) {
-        if (!(item instanceof Ingredient) && !(item instanceof Dish)) {
+        if (!(item instanceof Ingredient) && !(item instanceof Dish) && !(item instanceof Plate)) {
             return false;
         }
 
@@ -67,6 +71,10 @@ public class CuttingStation extends Station{
                 if (((Ingredient) item).getState() == State.RAW) {
                     return false;
                 }
+            }
+
+            if (item instanceof Plate) {
+                return true;
             }
 
             for (Preparable p : ingredientsStack) {
@@ -87,93 +95,134 @@ public class CuttingStation extends Station{
             return false;
         }
 
-        if (ingredientsStack.isEmpty()) {
-            if (item instanceof Dish) {
-                ingredientsStack.addAll(((Dish) item).getComponents());
-            } else if (item instanceof Ingredient) {
-                ingredientsStack.add((Preparable) item);
-            }
-            updateVisualItem();
-            gp.ui.showMessage("Placed " + item.name);
-            return true;
-        } else {
-            if (!canAccept(item)) {
-                gp.ui.showMessage("Cannot assemble/place here!");
-                return false;
-            }
-
-            if (item instanceof Dish) {
-                ingredientsStack.addAll(((Dish) item).getComponents());
+        if (!canAccept(item)) {
+            if (ingredientsStack.size() >= 5) {
+                gp.ui.showMessage("Station is full!");
+            } else if (!ingredientsStack.isEmpty()) {
+                gp.ui.showMessage("Cannot assemble RAW items!");
             } else {
-                ingredientsStack.add((Preparable) item);
+                gp.ui.showMessage("Cannot place this item!");
             }
-            updateVisualItem();
-            gp.ui.showMessage("Added " + item.name);
+            return false;
+        }
+
+        if (item instanceof Plate) {
+            if (ingredientsStack.isEmpty()){
+                gp.ui.showMessage("You placed " + item.name);
+            }
+            plate = (Plate) item;
+            if (plate.dish != null) {
+                Dish dish = (Dish) plate.dish;
+                placeItem(dish);
+            }
             return true;
         }
+
+        if (item instanceof Dish) {
+            Dish dish = (Dish) item;
+            ingredientsStack.addAll(dish.getComponents());
+            gp.ui.showMessage("Added contents of " + item.name);
+        }
+        else if (item instanceof Ingredient) {
+            ingredientsStack.add((Preparable) item);
+            gp.ui.showMessage("Added " + item.name);
+        }
+
+        reorderIngredients();
+        return true;
     }
 
     @Override
     public Item takeItem() {
-        if (cutting) {
-            gp.ui.showMessage("Finish cutting first!");
+        if (ingredientsStack.isEmpty()) {
+            if (plate != null) {
+                Plate temp = plate;
+                plate = null;
+                gp.ui.showMessage("Picked up " + temp.name);
+                return temp;
+            }
             return null;
         }
 
-        if (ingredientsStack.isEmpty()) return null;
-
-        if (ingredientsStack.size() == 1) {
-            Ingredient temp = (Ingredient) ingredientsStack.get(0);
+        if(ingredientsStack.size() == 1) {
+            Ingredient temp  = (Ingredient) ingredientsStack.get(0);
             ingredientsStack.clear();
-            this.itemOnStation = null;
+            gp.ui.showMessage("Picked up " + temp.name);
             return temp;
-        }
-        else {
+        } else {
             List<Preparable> componentsForDish = new ArrayList<>(ingredientsStack);
+
             Dish newDish = new Dish(componentsForDish, gp);
+
             ingredientsStack.clear();
-            this.itemOnStation = null;
+
+            if (plate != null) {
+                Plate temp = plate;
+                temp.dish = newDish;
+                plate = null;
+                gp.ui.showMessage("Picked up Plate + " + newDish.getDishName());
+
+                return temp;
+            }
+
             gp.ui.showMessage("Picked up " + newDish.getDishName());
             return newDish;
         }
     }
 
-    private void updateVisualItem() {
-        if (!ingredientsStack.isEmpty()) {
-            this.itemOnStation = (Item) ingredientsStack.get(ingredientsStack.size() - 1);
-        } else {
-            this.itemOnStation = null;
+    private void reorderIngredients() {
+        if (ingredientsStack.isEmpty()) return;
+
+        Preparable dough = null;
+
+        for (Preparable p : ingredientsStack) {
+            if (p instanceof Ingredient) {
+                Ingredient ing = (Ingredient) p;
+                if (ing instanceof Dough) {
+                    dough = p;
+                    break;
+                }
+            }
+        }
+
+        if (dough != null) {
+            ingredientsStack.remove(dough);
+            ingredientsStack.add(0, dough);
         }
     }
 
     @Override
     public void interact(Chef chef) {
-        if (itemOnStation == null || !(itemOnStation instanceof Ingredient)) {
+        if (ingredientsStack.isEmpty()) {
             chef.gp.ui.showMessage("Nothing to chop here!");
             chef.currentInteractionStation = null;
             return;
         }
 
-        Ingredient ing = (Ingredient) itemOnStation;
-        if (!ing.canBeChopped()) {
-            chef.gp.ui.showMessage("You can't chop that!");
-            chef.currentInteractionStation = null;
-            return;
-        }
-
-        if (cuttingThread == null || !cuttingThread.isAlive()) {
-            startCuttingProcess(chef, ing);
-        }
-        else {
-            if (isChefInRange(chef)) {
-                cutting = true;
-                currentChef = chef;
-                chef.currentInteractionStation = this;
-                chef.gp.ui.showMessage("Resuming...");
-            } else {
-                chef.gp.ui.showMessage("Too far to cut!");
-                chef.currentInteractionStation =  null;
+        if (ingredientsStack.size() == 1 && plate == null) {
+            Ingredient ing = (Ingredient) ingredientsStack.get(0);
+            if (!ing.canBeChopped()) {
+                chef.gp.ui.showMessage("You can't chop that!");
+                chef.currentInteractionStation = null;
+                return;
             }
+
+            if (cuttingThread == null || !cuttingThread.isAlive()) {
+                startCuttingProcess(chef, ing);
+            } else {
+                if (isChefInRange(chef)) {
+                    cutting = true;
+                    currentChef = chef;
+                    chef.currentInteractionStation = this;
+                    chef.gp.ui.showMessage("Resuming...");
+                } else {
+                    chef.gp.ui.showMessage("Too far to cut!");
+                    chef.currentInteractionStation =  null;
+                }
+            }
+        } else {
+            gp.ui.showMessage("Cannot chop dish");
+            return;
         }
     }
 
@@ -211,7 +260,7 @@ public class CuttingStation extends Station{
                 if (currentCuttingProgress >= 100) {
                     ing.changeState(State.CHOPPED);
                     ing.updateImage();
-                    itemOnStation.name = "Chopped " + itemOnStation.name;
+                    ing.name = "Chopped " + ing.name;
                     chef.gp.ui.showMessage("Chopping Finished!");
                 }
 
@@ -272,7 +321,39 @@ public class CuttingStation extends Station{
     }
 
     public void draw(Graphics2D g2, GamePanel gp) {
-        super.draw(g2, gp);
+        if (image != null) {
+            g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
+        }
+
+        if (plate != null && plate.image != null) {
+            int margin = 4;
+            int plateSize = gp.tileSize - (margin * 2);
+            g2.drawImage(plate.image, x + margin, y + margin, plateSize, plateSize, null);
+        }
+
+        if (!ingredientsStack.isEmpty()) {
+            int stackOffset = 0;
+
+            for (Preparable p : ingredientsStack) {
+                Item item = (Item) p;
+
+                if (item.image != null) {
+                    int itemMargin = 10;
+                    int itemSize = gp.tileSize - (itemMargin * 2);
+
+                    int drawX = x + itemMargin;
+                    int drawY = y + itemMargin - stackOffset;
+
+                    if (plate != null) {
+                        drawY -= 5;
+                    }
+
+                    g2.drawImage(item.image, drawX, drawY, itemSize, itemSize, null);
+
+                    stackOffset += 6;
+                }
+            }
+        }
 
         if (cutting && currentCuttingProgress < 100) {
             int barWidth = 36;

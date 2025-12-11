@@ -4,6 +4,7 @@ import ingredient.Ingredient;
 import ingredient.State;
 import inventory.CookingDevice;
 import inventory.KitchenUtensils;
+import inventory.Plate;
 import main.GamePanel;
 import preparable.Preparable;
 

@@ -2,6 +2,8 @@ package station;
 
 import entity.Chef;
 import inventory.CookingDevice;
+import inventory.Plate;
+import item.Dish;
 import item.Item;
 import main.GamePanel;
 import preparable.Preparable;
@@ -35,6 +37,10 @@ public class CookingStation extends Station {
 
     @Override
     public boolean placeItem(Item item) {
+        if (item instanceof Plate) {
+            return false;
+        }
+
         boolean success = cookingDevice.addItem(item);
 
         if (success) {
