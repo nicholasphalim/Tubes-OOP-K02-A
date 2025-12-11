@@ -21,7 +21,7 @@ public class CuttingStation extends Station{
 
     private Thread cuttingThread;
     private volatile int currentCuttingProgress;
-    private final int TOTAL_CUTTING_DURATION_MS = 2000;
+    private final int TOTAL_CUTTING_DURATION_MS = 3000;
     private final int PROGRESS_UPDATE_INTERVAL_MS = 100;
     public volatile boolean cutting = false;
     private Chef currentChef;

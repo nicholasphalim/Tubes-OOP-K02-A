@@ -17,8 +17,8 @@ public class Oven extends KitchenUtensils implements CookingDevice {
     private Thread cookingThread;
     private volatile int progress = 0;
     private volatile boolean isCooking = false;
-    private final int COOKING_DURATION_MS = 5000;
-    private final int BURNING_DURATION_MS = 10000;
+    private final int COOKING_DURATION_MS = 12000;
+    private final int BURNING_DURATION_MS = 12000;
 
     public Oven(GamePanel gp) {
         super(gp);

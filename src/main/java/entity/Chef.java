@@ -38,7 +38,7 @@ public class Chef extends Entity {
 
     private boolean isDashing = false; 
     private int dashTargetX, dashTargetY; 
-    private int dashSpeed = 16; 
+    private int dashSpeed = 8;
 
     private boolean dashKeyConsumed = false;
 
@@ -608,9 +608,10 @@ public class Chef extends Entity {
 
         // Gambar chef
         g2.drawImage(image, drawX, drawY, drawWidth, drawHeight, null);
-       
-        g2.setColor(Color.red);
-        g2.drawRect(position.x + solidArea.x, position.y + solidArea.y, solidArea.width, solidArea.height);
+
+        // ini hitbox
+//        g2.setColor(Color.red);
+//        g2.drawRect(position.x + solidArea.x, position.y + solidArea.y, solidArea.width, solidArea.height);
 
         // Gambar item
         if (inventory != null) {
@@ -691,4 +692,5 @@ public class Chef extends Entity {
 
         }
     }
+}
 }

@@ -12,10 +12,10 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GamePanel extends JPanel implements Runnable {
-    // --- STATIC SCORE ---
+    // STATIC SCORE
     public static int playerScore = 0;
 
-    // --- SCREEN SETTINGS ---
+    // SCREEN SETTINGS
     final int originalTileSize = 16;
     final int scale = 3;
     public final int tileSize = originalTileSize * scale;
@@ -31,7 +31,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     int FPS = 60;
 
-    // --- SYSTEM ---
+    // SYSTEM
     public TileManager tm = new TileManager(this);
     public KeyHandler keyH = new KeyHandler(this);
     Thread gameThread;
@@ -40,7 +40,9 @@ public class GamePanel extends JPanel implements Runnable {
     public UI ui = new UI(this);
 
     // GAME ENTITIES
-    public Chef chef = new Chef(this, keyH);
+    public Chef chef1;
+    public Chef chef2;
+    public Chef activeChef;
     public SuperObject[] obj = new SuperObject[64];
 
     public OrderList orderList = new OrderList(this);
@@ -54,7 +56,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int tutorialState = 4;
 
     // TIMER
-    public final double INITIAL_TIME = 100.0;
+    public final double INITIAL_TIME = 180.0;
     public double gameTimer = INITIAL_TIME;
 
     // MIN SCORE
@@ -79,6 +81,9 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void setupGame(){
+        chef1 = new Chef(this, keyH, tileSize * 3, tileSize * 3);
+        chef2 = new Chef(this, keyH, tileSize * 3, tileSize * 7);
+        activeChef = chef1;
         as.setObject();
         setupRecipes();
     }
@@ -114,8 +119,10 @@ public class GamePanel extends JPanel implements Runnable {
         isWin = false;
         gameOverMessage = "";
 
-        chef.setDefaultState();
-        chef.setInventory(null);
+        chef1.setDefaultState();
+        chef1.setInventory(null);
+        chef2.setDefaultState();
+        chef2.setInventory(null);
 
         setupGame();
     }
@@ -158,8 +165,20 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void update() {
         if (gameState == playState) {
-            chef.update();
             orderList.update();
+            if (keyH.swapPressed) {
+                if (activeChef == chef1) {
+                    activeChef = chef2;
+                } else {
+                    activeChef = chef1;
+                }
+                keyH.swapPressed = false;
+
+
+            }
+
+            if (chef1 != null) chef1.update();
+            if (chef2 != null) chef2.update();
             if (gameTimer > 0) {
                 gameTimer -= (double) 1/60;
             } else {
@@ -207,7 +226,12 @@ public class GamePanel extends JPanel implements Runnable {
                     obj[i].draw(g2, this);
                 }
             }
-            chef.draw(g2);
+            if (chef1 != null) {
+                chef1.draw(g2);
+            }
+            if (chef2 != null) {
+                chef2.draw(g2);
+            }
             ui.draw(g2);
         }
 

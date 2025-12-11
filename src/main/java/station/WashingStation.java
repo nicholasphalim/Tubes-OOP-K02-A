@@ -22,7 +22,7 @@ public class WashingStation extends Station {
 
     private Thread washingThread;
     private volatile int currentWashingProgress;
-    private final int TOTAL_WASHING_DURATION_MS = 2000;
+    private final int TOTAL_WASHING_DURATION_MS = 3000;
     private final int PROGRESS_UPDATE_INTERVAL_MS = 100;
     public volatile boolean washing = false;
     private Chef currentChef;
