@@ -13,6 +13,7 @@ public class KeyHandler implements KeyListener {
     public  boolean rightPressed = false;
     public boolean eKeyPressed = false;
     public boolean cKeyPressed = false;
+    public boolean swapPressed = false;
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -44,6 +45,12 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_C) {
             cKeyPressed = true;
         }
+
+        if (code == KeyEvent.VK_SPACE) {
+            if (!swapPressed) {
+                swapPressed = true; 
+            }
+        }
     }
 
     @Override
@@ -66,6 +73,9 @@ public class KeyHandler implements KeyListener {
         }
         if (code == KeyEvent.VK_C) {
             cKeyPressed = false;
+        }
+        if (code == KeyEvent.VK_SPACE) {
+            swapPressed = false;
         }
     }
 

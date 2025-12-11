@@ -1,18 +1,19 @@
 package entity;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import item.Item;
 import main.GamePanel;
 import main.KeyHandler;
 import object.SuperObject;
-import preparable.Preparable;
-import station.AssemblyStation;
-import station.CuttingStation;
 import station.Station;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 public class Chef extends Entity {
     public GamePanel gp;
@@ -24,13 +25,17 @@ public class Chef extends Entity {
     private Item inventory;
     public Action busyState;
     public Station currentInteractionStation;
+    private int startX, startY;
 
-    public Chef(GamePanel gp, KeyHandler keyH) {
+    public Chef(GamePanel gp, KeyHandler keyH, int startX, int startY) {
 
         super(0,0);
 
         this.gp = gp;
         this.keyH = keyH;
+
+        this.startX = startX;
+        this.startY = startY;
 
         solidArea = new Rectangle(12,12,24,24);
         solidAreaDefaultX = solidArea.x;
@@ -45,8 +50,8 @@ public class Chef extends Entity {
     }
 
     public void setDefaultState() {
-        position.x = gp.tileSize * 1;
-        position.y = gp.tileSize * 1;
+        position.x = startX;
+        position.y = startY ;
         speed = 4;
         direction = Direction.DOWN;
     }
@@ -76,61 +81,73 @@ public class Chef extends Entity {
 
     }
 
-    public void update(){
+    public void update() {
 
-        Direction inputDir = keyH.getDirection();
+        if (this != gp.activeChef) {
+            return; 
+        }
 
-        int prevX = position.x;
-        int prevY = position.y;
+        boolean isMoving = false;
 
-        if(inputDir != null) {
-            this.direction = inputDir;
+        if (keyH.upPressed) {
+            direction = Direction.UP;
+            isMoving = true;
+        } else if (keyH.downPressed) {
+            direction = Direction.DOWN;
+            isMoving = true;
+        }
 
+        if (keyH.upPressed || keyH.downPressed) {
             collisionOn = false;
             gp.cChecker.checkTile(this);
-
-            int objIndex = gp.cChecker.checkObject(this, true);
-
+            gp.cChecker.checkObject(this, true);
 
             if (!collisionOn) {
-                switch (direction) {
-                    case UP:
-                        position.y -= speed;
-                        break;
-                    case DOWN:
-                        position.y += speed;
-                        break;
-                    case LEFT:
-                        position.x -= speed;
-                        break;
-                    case RIGHT:
-                        position.x += speed;
-                        break;
-                }
+                if (direction == Direction.UP) position.y -= speed;
+                if (direction == Direction.DOWN) position.y += speed;
             }
+        }
 
+        if (keyH.leftPressed) {
+            direction = Direction.LEFT;
+            isMoving = true;
+        } else if (keyH.rightPressed) {
+            direction = Direction.RIGHT;
+            isMoving = true;
+        }
+
+        if (keyH.leftPressed || keyH.rightPressed) {
+            collisionOn = false;
+            gp.cChecker.checkTile(this);
+            gp.cChecker.checkObject(this, true);
+
+            if (!collisionOn) {
+                if (direction == Direction.LEFT) position.x -= speed;
+                if (direction == Direction.RIGHT) position.x += speed;
+            }
+        }
+
+         int prevX = position.x; 
+        if (isMoving) {
             spriteCounter++;
-            if(spriteCounter >= 10) {
-                if(spriteNum == 1) {
-                    spriteNum = 2;
-                } else if(spriteNum == 2) {
-                    spriteNum = 1;
-                }
+            if (spriteCounter >= 10) {
+                if (spriteNum == 1) spriteNum = 2;
+                else if (spriteNum == 2) spriteNum = 1;
                 spriteCounter = 0;
             }
+
+            if (busyState != null) {
+                busyState = null;
+                currentInteractionStation = null;
+            }
         }
 
-        if (busyState != null && (position.x != prevX || position.y != prevY)) {
-            busyState = null;
-            currentInteractionStation = null;
-        }
-
-        if(keyH.eKeyPressed){
+        if (keyH.eKeyPressed) {
             pickDrop();
             keyH.eKeyPressed = false;
         }
 
-        if(keyH.cKeyPressed){
+        if (keyH.cKeyPressed) {
             interact();
             keyH.cKeyPressed = false;
         }
@@ -369,7 +386,41 @@ public class Chef extends Entity {
 
 
         g2.drawImage(image, drawX, drawY, drawWidth, drawHeight, null);
+       
         g2.setColor(Color.red);
         g2.drawRect(position.x + solidArea.x, position.y + solidArea.y, solidArea.width, solidArea.height);
+
+        if (this == gp.activeChef) {
+            g2.setColor(Color.GREEN);
+
+            int centerX = drawX + (drawWidth / 2);
+            
+            int tipY = drawY + 35; //posisi ujung bawah segitiga
+            
+            int triangleHeight = 10; 
+            int triangleHalfWidth = 6;
+
+  
+            int[] xPoints = {
+                centerX,                       //x bawah
+                centerX - triangleHalfWidth,   //x atas kiri
+                centerX + triangleHalfWidth    //x atas kanan
+            };
+
+
+            int[] yPoints = {
+                tipY,                   //y bawah
+                tipY - triangleHeight,  //y atas kiri
+                tipY - triangleHeight   //y atas kanan
+            };
+
+            g2.fillPolygon(xPoints, yPoints, 3);
+            
+            // border putih
+            g2.setColor(Color.WHITE);
+            g2.setStroke(new BasicStroke((float) 0.5)); 
+            g2.drawPolygon(xPoints, yPoints, 3);
+
+        }
     }
 }

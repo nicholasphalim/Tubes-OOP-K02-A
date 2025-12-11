@@ -1,15 +1,21 @@
 package main;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+
+import javax.swing.JPanel;
+
 import entity.Chef;
 import object.SuperObject;
 import tile.TileManager;
 
-import javax.swing.*;
-import java.awt.*;
-
 public class GamePanel extends JPanel implements Runnable {
     final int originalTileSize = 16;
     final int scale = 3;
+
+    
 
     public final int tileSize = originalTileSize * scale;
     public final int maxScreenCol = 14;
@@ -26,7 +32,9 @@ public class GamePanel extends JPanel implements Runnable {
 
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter as = new AssetSetter(this);
-    public Chef chef = new Chef(this, keyH);
+    public Chef chef1;
+    public Chef chef2;
+    public Chef activeChef;
     public SuperObject[] obj = new SuperObject[10];
     public UI ui = new UI(this);
 
@@ -39,6 +47,11 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void setupGame(){
+
+        chef1 = new Chef(this, keyH, tileSize * 3, tileSize * 3);
+        chef2 = new Chef(this, keyH, tileSize * 3, tileSize * 7);
+        activeChef = chef1;
+        
         as.setObject();
     }
 
@@ -79,24 +92,47 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-        chef.update();
+        if (keyH.swapPressed) {
+            if (activeChef == chef1) {
+                activeChef = chef2;
+            } else {
+                activeChef = chef1;
+            }
+            keyH.swapPressed = false;
+
+            
+        }
+
+        if (chef1 != null) chef1.update();
+        if (chef2 != null) chef2.update();
     }
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         Graphics2D g2 = (Graphics2D) g;
-        tm.draw(g2);
+
+        if (tm != null) {
+            tm.draw(g2);
+        }
+
         for (int i = 0; i<obj.length; i++){
             if(obj[i] != null){
                 obj[i].draw(g2, this);
             }
         }
 
-        chef.draw(g2);
+        if (chef1 != null) {
+            chef1.draw(g2);
+        }
+        if (chef2 != null) {
+            chef2.draw(g2);
+        }
 
-        ui.draw(g2);
-
+        
+        if (ui != null && activeChef != null) {
+        
+            ui.draw(g2);
+        }
         g2.dispose();
     }
 }
