@@ -15,6 +15,13 @@ public class Ingredient extends Item implements Preparable {
         this.state = State.RAW;
     }
 
+    public Ingredient (Ingredient target) {
+        super(target.gp);
+        this.name = target.name;
+        this.ingName = target.ingName;
+        this.state = target.state;
+    }
+
     public String getName() {
         return name;
     }
