@@ -40,32 +40,6 @@ public class UI {
 
         g2.drawString("y: " + gp.chef.getPosition().y, 600, 90);
 
-        //Progress Bar
-        if (gp.chef.busyState == Action.CUTTING && gp.chef.currentInteractionStation instanceof CuttingStation) {
-            CuttingStation activeStation = (CuttingStation) gp.chef.currentInteractionStation;
-            if (activeStation.cutting && activeStation.getCurrentCuttingProgress() < 100) {
-                int barWidth = gp.tileSize;
-                int barHeight = 10;
-                int barX = activeStation.x;
-                int barY = activeStation.y;
-
-                g2.setColor(Color.GRAY);
-                g2.fillRect(barX, barY, barWidth, barHeight);
-
-                int progressWidth = (int) (barWidth * (activeStation.getCurrentCuttingProgress() / 100.0));
-                g2.setColor(Color.GREEN);
-                g2.fillRect(barX, barY, progressWidth, barHeight);
-
-                g2.setFont(arial_40.deriveFont(Font.PLAIN, 15f));
-                g2.setColor(Color.WHITE);
-                String progressText = activeStation.getCurrentCuttingProgress() + "%";
-                FontMetrics fm = g2.getFontMetrics();
-                int textX = barX + (barWidth - fm.stringWidth(progressText)) / 2;
-                int textY = barY + ((barHeight - fm.getHeight()) / 2) + fm.getAscent();
-                g2.drawString(progressText, textX, textY);
-            }
-        }
-
         if(this.messageOn){
             g2.setFont(g2.getFont().deriveFont(20f));
             g2.setColor(Color.black);

@@ -10,7 +10,7 @@ public class Dough extends Ingredient {
     public Dough(GamePanel gp) {
         super("Dough", gp);
         try {
-            image = ImageIO.read(getClass().getResourceAsStream("/objects/dough.png"));
+            image = ImageIO.read(getClass().getResourceAsStream("/objects/Dough.png"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

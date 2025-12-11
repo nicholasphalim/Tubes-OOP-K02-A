@@ -2,6 +2,7 @@ package station;
 
 import inventory.Plate;
 import entity.Chef;
+import item.Item;
 import main.GamePanel;
 import object.SuperObject;
 
@@ -22,6 +23,12 @@ public class PlateStorage extends Station {
         name = "Plate Storage";
         try {
              this.plateStack = new Stack<>();
+             Plate plate1 = new Plate(gp);
+             Plate plate2 = new Plate(gp);
+             Plate plate3 = new Plate(gp);
+             plateStack.push(plate1);
+             plateStack.push(plate2);
+             plateStack.push(plate3);
         } catch (OutOfMemoryError e) {
             System.err.println("Failed to initialize PlateStorage: " + e.getMessage());
         }
@@ -47,9 +54,9 @@ public class PlateStorage extends Station {
 
     @Override
     public void interact(Chef chef) {
-        if (chef.getInventory() == null) {
-            chef.setInventory(this.takeItem());
-        }
+//        if (chef.getInventory() == null) {
+//            chef.setInventory(this.takeItem());
+//        }
     }
 
     @Override

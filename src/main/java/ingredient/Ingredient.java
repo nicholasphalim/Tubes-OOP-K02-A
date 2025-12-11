@@ -4,7 +4,10 @@ import main.GamePanel;
 import preparable.Preparable;
 import item.Item;
 
-public class Ingredient extends Item implements Preparable {
+import javax.imageio.ImageIO;
+import java.io.IOException;
+
+public class Ingredient extends Item implements Preparable, Cloneable {
     private String ingName;
     private State state;
 
@@ -25,6 +28,8 @@ public class Ingredient extends Item implements Preparable {
     public String getName() {
         return name;
     }
+
+    public String getIngName() {return ingName;}
 
     public State getState(){
         return state;
@@ -69,6 +74,19 @@ public class Ingredient extends Item implements Preparable {
         } else {
             changeState(State.COOKED);
         }
+    }
+
+    public void updateImage() {
+        try {
+            image = ImageIO.read(getClass().getResourceAsStream("/objects/" + ingName + "_" + state + ".png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Ingredient clone() throws CloneNotSupportedException {
+        return (Ingredient) super.clone();
     }
 
 }

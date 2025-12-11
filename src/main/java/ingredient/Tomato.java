@@ -10,7 +10,7 @@ public class Tomato extends Ingredient {
     public Tomato(GamePanel gp) {
         super("Tomato", gp);
         try {
-            image = ImageIO.read(getClass().getResourceAsStream("/objects/dough.png"));
+            image = ImageIO.read(getClass().getResourceAsStream("/objects/Tomato.png"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

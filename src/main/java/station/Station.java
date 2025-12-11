@@ -18,7 +18,7 @@ public abstract class Station extends SuperObject {
         this.type = TYPE_STATION;
     }
 
-    public boolean canAccept(SuperObject item) {
+    public boolean canAccept(Item item) {
         return itemOnStation == null;
     }
 

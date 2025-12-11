@@ -10,7 +10,7 @@ public class OBJ_Dough extends SuperObject{
         super(gp);
         name = "Dough";
         try {
-            image = ImageIO.read(getClass().getResourceAsStream("/objects/dough.png"));
+            image = ImageIO.read(getClass().getResourceAsStream("/objects/Dough.png"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

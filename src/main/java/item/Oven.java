@@ -4,6 +4,7 @@ import ingredient.Ingredient;
 import ingredient.State;
 import inventory.CookingDevice;
 import inventory.KitchenUtensils;
+import inventory.Plate;
 import main.GamePanel;
 import preparable.Preparable;
 
@@ -31,7 +32,7 @@ public class Oven extends KitchenUtensils implements CookingDevice {
 
         if (item instanceof Ingredient) {
             Ingredient ing = (Ingredient) item;
-            return ing.canBeCooked() && ing.getName().equalsIgnoreCase("Dough");
+            return ing.canBeCooked() && ing.getName().equalsIgnoreCase("Chopped Dough");
         }
         else if (item instanceof Dish) {
             Dish dish = (Dish) item;
@@ -40,7 +41,7 @@ public class Oven extends KitchenUtensils implements CookingDevice {
             for (Preparable p : dishComponents) {
                 if (p instanceof Ingredient) {
                     Ingredient ing = (Ingredient) p;
-                    if (ing.getName().equalsIgnoreCase("Dough")) {foundDough = true; break;}
+                    if (ing.getName().equalsIgnoreCase("Chopped Dough")) {foundDough = true; break;}
                 }
             }
             return !dish.isCooked() && foundDough;
@@ -123,6 +124,7 @@ public class Oven extends KitchenUtensils implements CookingDevice {
         if (currentItem instanceof Ingredient) {
             Ingredient ing = (Ingredient) currentItem;
             ing.changeState(State.COOKED);
+            ing.updateImage();
             ing.name = "Baked " + ing.name;
         }
         else if (currentItem instanceof Dish) {

@@ -2,6 +2,8 @@ package station;
 
 import entity.Chef;
 import inventory.CookingDevice;
+import inventory.Plate;
+import item.Dish;
 import item.Item;
 import main.GamePanel;
 import preparable.Preparable;
@@ -35,6 +37,10 @@ public class CookingStation extends Station {
 
     @Override
     public boolean placeItem(Item item) {
+        if (item instanceof Plate) {
+            return false;
+        }
+
         boolean success = cookingDevice.addItem(item);
 
         if (success) {
@@ -64,12 +70,10 @@ public class CookingStation extends Station {
     public void draw(Graphics2D g2, GamePanel gp) {
         super.draw(g2, gp);
 
-
         Item itemInOven = cookingDevice.peekItem();
         if (itemInOven != null && itemInOven.image != null) {
             g2.drawImage(itemInOven.image, x + 12, y + 12, 24, 24, null);
         }
-
 
         if (cookingDevice.isCooking() || cookingDevice.getProgress() > 0) {
 

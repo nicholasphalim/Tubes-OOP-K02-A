@@ -1,8 +1,10 @@
 package item;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import ingredient.Ingredient;
 import ingredient.State;
@@ -22,7 +24,7 @@ public class Dish extends Item {
         this.name = generateName();
         this.isCooked = checkAllCooked();
         try {
-            image = ImageIO.read(getClass().getResourceAsStream("/objects/dough.png"));
+            image = ImageIO.read(getClass().getResourceAsStream("/objects/Dough_COOKED.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -68,6 +70,14 @@ public class Dish extends Item {
 
     public void setCooked(boolean b){
         isCooked = b;
+        if(isCooked){
+            for (Preparable p : components) {
+                Ingredient ing = (Ingredient) p;
+                ing.changeState(State.COOKED);
+                ing.updateImage();
+            }
+        }
+
     }
 
     public boolean isDone(Recipe recipe) {
@@ -75,32 +85,32 @@ public class Dish extends Item {
 
         if (components.size() != recipe.size()) return false;
 
-        List<String> requiredNames = new ArrayList<>(recipe.getIngredientNames());
-        List<State> requiredStates = new ArrayList<>(recipe.getIngredientStates());
-
+        List<Ingredient> remaining = new ArrayList<>();
         for (Preparable p : components) {
-
             if (!(p instanceof Ingredient)) return false;
-            Ingredient ing = (Ingredient) p;
+            remaining.add((Ingredient) p);
+        }
 
-            String name = ing.getName();
-            State state = ing.getState();
+        for (Map.Entry<Ingredient, State> entry : recipe.getIngredientRequirements().entrySet()) {
+            String reqName = entry.getKey().getName();
+            State reqState = entry.getValue();
+//            System.out.println(reqName + " " + reqState);
 
             int foundIndex = -1;
-            for (int i = 0; i < requiredNames.size(); i++) {
-                if (name.equals(requiredNames.get(i)) && state == requiredStates.get(i)) {
+            for (int i = 0; i < remaining.size(); i++) {
+                Ingredient ing = remaining.get(i);
+//                System.out.println(ing.getIngName() + " " + ing.getState());
+                if (reqName.equals(ing.getIngName()) && ing.getState() == reqState) {
                     foundIndex = i;
                     break;
                 }
             }
 
             if (foundIndex == -1) return false;
-
-            requiredNames.remove(foundIndex);
-            requiredStates.remove(foundIndex);
+            remaining.remove(foundIndex);
         }
 
-        return requiredNames.isEmpty();
+        return remaining.isEmpty();
 
         
         // if (recipe == null) return false;
@@ -122,6 +132,28 @@ public class Dish extends Item {
         // }
 
         // return true;
+    }
+
+    @Override
+    public void draw(Graphics2D g2, GamePanel gp) {
+
+        if (getComponents() != null && !getComponents().isEmpty()) {
+            int offset = 0;
+            int margin = 4;
+            int size = gp.tileSize - (margin * 2);
+
+            for (Preparable p : getComponents()) {
+                Item item = (Item) p;
+
+                if (item.image != null) {
+                    g2.drawImage(item.image, x + margin, y + margin - offset, size, size, null);
+
+                    offset += 5;
+                }
+            }
+        } else {
+            super.draw(g2, gp);
+        }
     }
 
 }
