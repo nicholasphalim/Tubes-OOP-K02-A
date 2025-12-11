@@ -5,32 +5,25 @@ import java.util.List;
 import java.util.Random;
 
 import item.Dish;
-import main.GamePanel;
 import recipe.Recipe;
 
 public class OrderList {
 
-    private GamePanel gp;
     private List<Order> orders;
     private List<Recipe> availableRecipes;
 
-    private int orderCounter = 1;    private Random random = new Random();
+    private int orderCounter = 1;
+    private Random random = new Random();
 
     private final int MAX_ORDERS = 5;
     private final int BASE_REWARD = 100;
-    private final int BASE_PENALTY = 50;
-    private final int BASE_TIME_LIMIT = 60;
-
-    private double timeSinceLastSpawn = 0.0;    private final double SPAWN_INTERVAL = 10.0;
+    private final int BASE_PENALTY = 20;    private final int BASE_TIME_LIMIT = 90;
+    private double timeSinceLastSpawn = 0.0;
+    private final double SPAWN_INTERVAL = 10.0;
     public OrderList() {
-        this.gp = gp;
         this.orders = new ArrayList<>();
         this.availableRecipes = new ArrayList<>();
-
-        setupRecipes();
-    }
-
-    private void setupRecipes() {
+        // setupRecipes() dipanggil dari luar (GamePanel) atau disini
     }
 
     public void addRecipe(Recipe r) {
@@ -39,22 +32,30 @@ public class OrderList {
 
     public void update() {
         double delta = 1.0 / 60.0;
-        timeSinceLastSpawn += delta;
 
-        if (orders.size() < MAX_ORDERS && timeSinceLastSpawn >= SPAWN_INTERVAL) {
-            spawnOrder();
-            timeSinceLastSpawn = 0.0;
+        if (!availableRecipes.isEmpty() && orders.size() < MAX_ORDERS) {
+            timeSinceLastSpawn += delta;
+
+            if (orders.isEmpty() && timeSinceLastSpawn > 3.0) {
+                spawnOrder();
+                timeSinceLastSpawn = 0;
+            }
+            else if (timeSinceLastSpawn >= SPAWN_INTERVAL) {
+                spawnOrder();
+                timeSinceLastSpawn = 0.0;
+            }
         }
 
         for (int i = orders.size() - 1; i >= 0; i--) {
             Order o = orders.get(i);
 
-            boolean isExpired = o.update(1.0 / 60.0);
+            boolean isExpired = o.update(delta);
 
             if (isExpired) {
                 System.out.println("Order Expired: " + o.getRecipe().getName());
+                // Penalti jika expired? Opsional
+                // GamePanel.score -= BASE_PENALTY;
                 orders.remove(i);
-
             }
         }
     }
@@ -74,35 +75,26 @@ public class OrderList {
         );
 
         orders.add(newOrder);
-        System.out.println("New Order: " + randomRecipe.getName());
+         System.out.println("New Order Generated: " + randomRecipe.getName());
     }
 
-    public boolean validateOrder(Dish dishServed) {
-        if (orders.isEmpty()) return false;
-        if (dishServed == null) return false;
+    public Order matchAndRemoveOrder(Dish dishServed) {
+        if (orders.isEmpty()) return null;
+        if (dishServed == null) return null;
 
         for (int i = 0; i < orders.size(); i++) {
             Order order = orders.get(i);
 
             if (dishServed.isDone(order.getRecipe())) {
-                System.out.println("Order Complete: " + order.getRecipe().getName());
+                System.out.println("Order Fulfilled: " + order.getRecipe().getName());
                 orders.remove(i);
-                return true;
+                return order;
             }
         }
-        return false;
+        return null;
     }
 
     public List<Order> getActiveOrders() {
         return orders;
     }
-
-    public int getCount() {
-        return orderCounter;
-    }
-
-    public List<Order> getOrders() {
-        return orders;
-    }
-
 }

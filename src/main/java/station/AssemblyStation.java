@@ -49,6 +49,21 @@ public class AssemblyStation extends Station {
             return false;
         }
 
+        if (this.plate != null && !this.plate.isClean) {
+            return false;
+        }
+
+        if (item instanceof Plate) {
+            Plate p = (Plate) item;
+            // Cek apakah piring kotor?
+            if (!p.isClean) {
+                // Jika Station TIDAK KOSONG (Ada ingredients ATAU ada piring lain)
+                if (!ingredients.isEmpty() || this.plate != null) {
+                    return false; // Tolak
+                }
+            }
+        }
+
         int incomingSize = (item instanceof Dish) ? ((Dish) item).getComponents().size() : 1;
         if (ingredients.size() + incomingSize > 5) {
             return false;
@@ -81,8 +96,19 @@ public class AssemblyStation extends Station {
 
     @Override
     public boolean placeItem(Item item) {
+
+        if (item instanceof Plate) {
+            Plate p = (Plate) item;
+            if (!p.isClean && (!ingredients.isEmpty() || this.plate != null)) {
+                gp.ui.showMessage("Cannot put dirty plate on food!");
+                return false;
+            }
+        }
+
         if (!canAccept(item)) {
-            if (ingredients.size() >= 5) {
+            if (this.plate != null && !this.plate.isClean) {
+                gp.ui.showMessage("Plate is dirty!");
+            } else if (ingredients.size() >= 5) {
                 gp.ui.showMessage("Station is full!");
             } else if (!ingredients.isEmpty()) {
                 gp.ui.showMessage("Cannot assemble RAW items!");
@@ -93,13 +119,19 @@ public class AssemblyStation extends Station {
         }
 
         if (item instanceof Plate) {
+            Plate incomingPlate = (Plate) item;
+
             if (ingredients.isEmpty()){
                 gp.ui.showMessage("You placed " + item.name);
             }
-            plate = (Plate) item;
+
+            plate = incomingPlate;
+
             if (plate.dish != null) {
-                Dish dish = (Dish) plate.dish;
-                placeItem(dish);
+                if (plate.isClean) {
+                    Dish dish = (Dish) plate.dish;
+                    placeItem(dish);
+                }
             }
             return true;
         }
@@ -143,6 +175,10 @@ public class AssemblyStation extends Station {
             ingredients.clear();
 
             if (plate != null) {
+                if (!plate.isClean) {
+                    gp.ui.showMessage("Error: Plate became dirty during assembly?");
+                    return newDish;
+                }
                 Plate temp = plate;
                 temp.dish = newDish;
                 plate = null;

@@ -64,7 +64,7 @@ public abstract class Station extends SuperObject {
             int textWidth = fm.stringWidth(itemOnStation.name);
             int textX = x + (gp.tileSize - textWidth) / 2;
             int textY = y + gp.tileSize;
-            g2.drawString(itemOnStation.name, textX, textY);
+//            g2.drawString(itemOnStation.name, textX, textY);
             g2.setFont(originalFont);
         }
     }

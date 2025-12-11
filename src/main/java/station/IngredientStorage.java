@@ -32,20 +32,17 @@ public class IngredientStorage extends Station {
 
     private Plate plate;
 
-    //instantiate with specific ingredient
     public IngredientStorage(GamePanel gp, Ingredient ingredient) {
         super(gp);
         name = "Ingredient Storage";
-    public IngredientStorage(GamePanel gp, Ingredient ingredient) {
-        super(gp);
         this.ingredientItem = ingredient;
         this.ingredientName = ingredient.getName();
         ingredients = new ArrayList<>();
     }
 
-    public Ingredient getIngredientItem() {
+    public Ingredient getIngredientItem() throws CloneNotSupportedException {
         gp.ui.showMessage("Took " + this.ingredientName + " from storage.");
-        return this.ingredientItem.copy();
+        return this.ingredientItem.clone();
     }
 
     public String getIngredientName() {
@@ -56,6 +53,18 @@ public class IngredientStorage extends Station {
     public boolean canAccept(Item item) {
         if (!(item instanceof Ingredient) && !(item instanceof Dish) && !(item instanceof Plate)) {
             return false;
+        }
+
+        if (this.plate != null && !this.plate.isClean) {
+            return false;
+        }
+
+        if (item instanceof Plate) {
+            Plate p = (Plate) item;
+            if (!p.isClean && !ingredients.isEmpty()) {
+                return false;
+            }
+            return true;
         }
 
         int incomingSize = (item instanceof Dish) ? ((Dish) item).getComponents().size() : 1;
@@ -93,6 +102,14 @@ public class IngredientStorage extends Station {
 
     @Override
     public boolean placeItem(Item item) {
+        if (this.plate != null && !this.plate.isClean) {
+            gp.ui.showMessage("Plate is dirty!");
+            return false;
+        }
+        if (item instanceof Plate && !((Plate)item).isClean && !ingredients.isEmpty()) {
+            gp.ui.showMessage("Cannot put dirty plate on food!");
+            return false;
+        }
         if (!canAccept(item)) {
             if (ingredients.size() >= 5) {
                 gp.ui.showMessage("Station is full!");

@@ -3,7 +3,6 @@ package main;
 import ingredient.Dough;
 import ingredient.Tomato;
 import item.Oven;
-import object.OBJ_Dough;
 import station.*;
 
 import java.io.BufferedReader;
@@ -98,14 +97,14 @@ public class AssetSetter {
                             break;
 
                         case 4: // trash Station
-                            gp.obj[objIndex] = new TrashStation(gp);
+                            gp.obj[objIndex] = TrashStation.getInstance(gp);
                             gp.obj[objIndex].x = col * gp.tileSize;
                             gp.obj[objIndex].y = row * gp.tileSize;
                             objIndex++;
                             break;
 
                         case 8: // trash Station
-                            gp.obj[objIndex] = new PlateStorage(gp);
+                            gp.obj[objIndex] = PlateStorage.getInstance(gp);
                             gp.obj[objIndex].x = col * gp.tileSize;
                             gp.obj[objIndex].y = row * gp.tileSize;
                             objIndex++;
@@ -128,7 +127,8 @@ public class AssetSetter {
                             break;
 
                         case 11: // Serving Counter
-                            gp.obj[objIndex] = new ServingCounter(gp);
+                            // Use the shared OrderList from GamePanel so ServingCounter validates against the same orders
+                            gp.obj[objIndex] = new ServingCounter(gp, gp.orderList);
                             gp.obj[objIndex].x = col * gp.tileSize;
                             gp.obj[objIndex].y = row * gp.tileSize;
                             objIndex++;

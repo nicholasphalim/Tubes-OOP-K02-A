@@ -20,6 +20,11 @@ public class TrashStation extends Station {
     private TrashStation(GamePanel gp) {
         super(gp);
         name = "Trash Station";
+        try {
+            image = ImageIO.read(getClass().getResourceAsStream("/tiles/trash.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static TrashStation getInstance(GamePanel gp) {
@@ -27,15 +32,6 @@ public class TrashStation extends Station {
             instance = new TrashStation(gp);
         }
         return instance;
-    public TrashStation(GamePanel gp) {
-        super(gp);
-        name = "Trash Station";
-        try {
-            // Pastikan Anda memiliki gambar untuk trash bin
-            image = ImageIO.read(getClass().getResourceAsStream("/tiles/trash.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 //    @Override

@@ -37,7 +37,16 @@ public class Plate extends KitchenUtensils {
     }
 
     public boolean canAccept(Item ingredient) {
-        return isClean; 
+        if (!isClean) {
+            return false;
+        }
+
+        // A clean plate can accept a Dish (if it's not already full)
+        if (ingredient instanceof Dish && this.dish == null) {
+            return true;
+        }
+
+        return false;
     }
 
     public void addIngredient(Item ingredient) {

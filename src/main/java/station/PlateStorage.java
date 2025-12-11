@@ -47,7 +47,7 @@ public class PlateStorage extends Station {
     }
 
     @Override
-    public boolean canAccept(SuperObject plate) {
+    public boolean canAccept(Item plate) {
         gp.ui.showMessage("Plate Storage does not accept items!");
         return false;
     }

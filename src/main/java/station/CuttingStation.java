@@ -59,6 +59,19 @@ public class CuttingStation extends Station{
             return false;
         }
 
+        if (this.plate != null && !this.plate.isClean) {
+            return false; // Jika piring di station kotor, tolak apapun
+        }
+
+        if (item instanceof Plate) {
+            Plate p = (Plate) item;
+            // Piring kotor hanya diterima jika station kosong (tidak ada bahan lain)
+            if (!p.isClean && !ingredientsStack.isEmpty()) {
+                return false;
+            }
+            return true;
+        }
+
         int incomingSize = (item instanceof Dish) ? ((Dish) item).getComponents().size() : 1;
         if (ingredientsStack.size() + incomingSize > 5) {
             return false;
@@ -92,6 +105,15 @@ public class CuttingStation extends Station{
     public boolean placeItem(Item item) {
         if (cutting) {
             gp.ui.showMessage("Wait for cutting to finish!");
+            return false;
+        }
+
+        if (this.plate != null && !this.plate.isClean) {
+            gp.ui.showMessage("Plate is dirty!");
+            return false;
+        }
+        if (item instanceof Plate && !((Plate)item).isClean && !ingredientsStack.isEmpty()) {
+            gp.ui.showMessage("Cannot put dirty plate on food!");
             return false;
         }
 
