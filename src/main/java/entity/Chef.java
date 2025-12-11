@@ -27,14 +27,13 @@ public class Chef extends Entity {
     public Station currentInteractionStation;
     private int startX, startY;
 
-    private int dashCooldown = 20;   // Cooldown (60 frames = 1 detik)
+    private int dashCooldown = 20;  
     private int cooldownCounter = 0;
     private boolean canDash = true;
 
-    // VARIABLE BARU UNTUK SMOOTH DASH
-    private boolean isDashing = false; // Status sedang meluncur
-    private int dashTargetX, dashTargetY; // Koordinat tujuan akhir
-    private int dashSpeed = 16; // Kecepatan meluncur (Cepat! Normal speed cuma 4)
+    private boolean isDashing = false; 
+    private int dashTargetX, dashTargetY; 
+    private int dashSpeed = 16; 
 
     private boolean dashKeyConsumed = false;
 
@@ -351,46 +350,21 @@ public class Chef extends Entity {
         return index;
     }
 
-    // ---------------------------------------------------------
-    // METHOD HELPER UNTUK DASH (Copy ini ke dalam class Chef)
-    // ---------------------------------------------------------
-
-    // Method 1: Hitung tujuan akhir (Raycasting Logic)
-// Method 1: Hitung tujuan akhir (Versi Anti-Tembus)
+    
     private void calculateDashTarget() {
-        // Default target adalah posisi sekarang (kalau buntu)
         int safeX = position.x;
         int safeY = position.y;
         
-        // Simpan speed asli dulu
+        // simpan speed asli 
         int originalSpeed = speed;
-        // UBAH SPEED JADI 0 AGAR AKURAT SAAT CEK COLLISION
         speed = 0; 
 
-        // Cek bertahap: 1 blok, 2 blok, 3 blok
+        // cek blok 1, 2, 3 didepannya
         for (int i = 1; i <= 2; i++) {
-            int jumpDistance = gp.tileSize * i;
-            
-            // Kalkulasi titik cek dari posisi ASLI (sebelum dash)
-            // Note: safeX/Y di sini masih memegang posisi "sebelum loop" atau "hasil valid loop sebelumnya"
-            // Kita harus menghitung 'checkX/Y' dari posisi.x/y asli player.
-            // Tapi karena position.x/y kita ubah-ubah di dalam loop buat simulasi, 
-            // kita harus hati-hati. 
-            
-            // Trik: Kita gunakan variabel lokal untuk titik start kalkulasi
-            // Karena di bawah kita balikin position ke original, aman.
-            int checkX = safeX; // Start dari titik aman terakhir? 
-            int checkY = safeY;
-            // BUKAN. Kita harus hitung dari titik awal + jarak total (i * tile).
-            // Kalau kita hitung dari safeX, nanti jadi akumulasi (3 tile dari titik safe sebelumnya).
-            
-            // Revisi Logika Kalkulasi Jarak:
-            // Kita harus selalu menghitung jarak dari posisi ASLI player.
-            // Untungnya di dalam loop, kita balikin 'position' ke 'originalX/Y'.
-            // Jadi position.x/y di awal loop selalu Posisi Asli Player.
-            
-            checkX = position.x;
-            checkY = position.y;
+            int jumpDistance = gp.tileSize * i;         
+
+            int checkX = position.x;
+            int checkY = position.y;
             
             switch (direction) {
                 case UP:    checkY -= jumpDistance; break;
@@ -399,58 +373,45 @@ public class Chef extends Entity {
                 case RIGHT: checkX += jumpDistance; break;
             }
 
-            // Simpan posisi asli player untuk restore nanti
             int originalX = position.x;
             int originalY = position.y;
 
-            // 1. Teleport player ke titik cek
+            // pindahin player
             position.x = checkX;
             position.y = checkY;
 
-            // 2. Cek Collision di titik tersebut
+            // cek collision
             collisionOn = false;
             gp.cChecker.checkTile(this);
             int objIndex = gp.cChecker.checkObject(this, true);
 
-            // 3. Restore posisi player
             position.x = originalX;
             position.y = originalY;
 
-            // 4. Evaluasi
             if (!collisionOn && objIndex == 999) {
-                // AMAN: Titik ini valid, simpan sebagai calon target
                 safeX = checkX;
                 safeY = checkY;
             } else {
-                // NABRAK: Berhenti di sini. Jangan cek jarak lebih jauh.
-                // Target dash tetap di 'safeX/Y' terakhir (jarak sebelumnya atau titik awal)
                 break;
             }
         }
         
-        // BALIKIN SPEED KE ASAL (PENTING!)
         speed = originalSpeed;
         
-        // Update target global
         dashTargetX = safeX;
         dashTargetY = safeY;
     }
 
-    // Method 2: Gerakkan karakter secara visual (Sliding)
     private void moveTowardsDashTarget() {
-        // Hitung jarak sisa ke target
         int xDist = Math.abs(position.x - dashTargetX);
         int yDist = Math.abs(position.y - dashTargetY);
         
-        // Jika jarak sudah sangat dekat (kurang dari kecepatan dash), 
-        // langsung SNAP ke target dan selesai.
         if (xDist <= dashSpeed && yDist <= dashSpeed) {
             position.x = dashTargetX;
             position.y = dashTargetY;
-            isDashing = false; // Dash Selesai
+            isDashing = false;
         } 
         else {
-            // Jika masih jauh, gerak sebesar 'dashSpeed' ke arah target
             if (position.x < dashTargetX) position.x += dashSpeed;
             else if (position.x > dashTargetX) position.x -= dashSpeed;
             
@@ -459,17 +420,13 @@ public class Chef extends Entity {
         }
     }
 
-    // Method khusus untuk mengurus segala urusan Dash
     private void handleDash() {
-        // A. Jika sedang dashing, lanjut meluncur
-
         if (!keyH.dashPressed) {
             dashKeyConsumed = false;
         }
         if (isDashing) {
             moveTowardsDashTarget();
             
-            // Update animasi kaki biar ngebut
             spriteCounter++;
             if (spriteCounter >= 5) {
                 if (spriteNum == 1) spriteNum = 2;
@@ -479,11 +436,10 @@ public class Chef extends Entity {
             return;
         }
 
-        // B. Cek Input Trigger (Hanya jika TIDAK sedang dashing)
+        //validasi dash
         if (keyH.dashPressed && canDash && !dashKeyConsumed) {
-            calculateDashTarget(); // Hitung target
+            calculateDashTarget(); 
             
-            // Validasi: Cuma dash kalau targetnya beda
             if (dashTargetX != position.x || dashTargetY != position.y) {
                 isDashing = true;
                 canDash = false;
@@ -493,7 +449,6 @@ public class Chef extends Entity {
             }
         }
 
-        // C. Urus Cooldown
         if (!canDash) {
             cooldownCounter++;
             if (cooldownCounter > dashCooldown) {
