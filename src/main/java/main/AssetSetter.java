@@ -1,12 +1,12 @@
 package main;
 
-import ingredient.Dough;
-import ingredient.Tomato;
+import ingredient.*;
 import item.Oven;
-import object.OBJ_Dough;
-import station.AssemblyStation;
-import station.CookingStation;
-import station.CuttingStation;
+import station.*;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class AssetSetter {
     GamePanel gp;
@@ -14,31 +14,138 @@ public class AssetSetter {
         this.gp = gp;
     }
 
-    public void setObject(){
-        gp.obj[0] = new Tomato(gp);
-        gp.obj[0].x = 3*gp.tileSize;
-        gp.obj[0].y = 3*gp.tileSize;
+    public void setObject() {
+        loadObjectMap("/maps/map1.txt");
+    }
 
-        gp.obj[1] = new CuttingStation(gp);
-        gp.obj[1].x = 4*gp.tileSize;
-        gp.obj[1].y = 0*gp.tileSize;
+    public void loadObjectMap(String filePath) {
+        try {
+            InputStream is = getClass().getResourceAsStream(filePath);
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
-        gp.obj[2] = new CuttingStation(gp);
-        gp.obj[2].x = 8*gp.tileSize;
-        gp.obj[2].y = 0*gp.tileSize;
+            int col = 0;
+            int row = 0;
+            int objIndex = 0;
+            WashingStation ws1 = null;
+            WashingStation ws2 = null;
 
-        gp.obj[3] = new AssemblyStation(gp);
-        gp.obj[3].x = 3*gp.tileSize;
-        gp.obj[3].y = 4*gp.tileSize;
+            while (col < gp.maxScreenCol && row < gp.maxScreenRow) {
 
-        gp.obj[4] = new Dough(gp);
-        gp.obj[4].x = 2*gp.tileSize;
-        gp.obj[4].y = 3*gp.tileSize;
+                String line = br.readLine();
 
-        Oven oven  = new Oven(gp);
+                while (col < gp.maxScreenCol) {
+                    String[] numbers = line.split(" ");
+                    int num = Integer.parseInt(numbers[col]);
 
-        gp.obj[5] = new CookingStation(gp, oven);
-        gp.obj[5].x = 1*gp.tileSize;
-        gp.obj[5].y = 7*gp.tileSize;
+                    switch (num) {
+                        case 2: // Cooking Station
+                            Oven oven = new Oven(gp);
+                            gp.obj[objIndex] = new CookingStation(gp, oven);
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 3: // Assembly Station
+                            gp.obj[objIndex] = new AssemblyStation(gp);
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 5: // Cutting Station
+                            gp.obj[objIndex] = new CuttingStation(gp);
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 7: // Ingredient Station Chicken
+                            gp.obj[objIndex] = new IngredientStorage(gp, new Chicken(gp));
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 12: // Ingredient Station Dough
+                            gp.obj[objIndex] = new IngredientStorage(gp, new Dough(gp));
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 13: // Ingredient Station Tomato
+                            gp.obj[objIndex] = new IngredientStorage(gp, new Tomato(gp));
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 14: // Ingredient Station Cheese
+                            gp.obj[objIndex] = new IngredientStorage(gp, new Cheese(gp));
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 15: // Ingredient Station Sausage
+                            gp.obj[objIndex] = new IngredientStorage(gp, new Sausage(gp));
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 4: // trash Station
+                            gp.obj[objIndex] = TrashStation.getInstance(gp);
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 8: // trash Station
+                            gp.obj[objIndex] = PlateStorage.getInstance(gp);
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+
+                        case 10: // Washing Station (Clean Stack)
+                            gp.obj[objIndex] = new WashingStation(gp, false);
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            ws2 = (WashingStation) gp.obj[objIndex];
+                            objIndex++;
+                            break;
+
+                        case 6: // Washing Station
+                            gp.obj[objIndex] = new WashingStation(gp, true);
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            ws1 = (WashingStation) gp.obj[objIndex];
+                            objIndex++;
+                            break;
+
+                        case 11: // Serving Counter
+                            // Use the shared OrderList from GamePanel so ServingCounter validates against the same orders
+                            gp.obj[objIndex] = new ServingCounter(gp, gp.orderList);
+                            gp.obj[objIndex].x = col * gp.tileSize;
+                            gp.obj[objIndex].y = row * gp.tileSize;
+                            objIndex++;
+                            break;
+                    }
+                    col++;
+                }
+
+                if (col == gp.maxScreenCol) {
+                    col = 0;
+                    row++;
+                }
+            }
+            br.close();
+            ws1.setCleanStack(ws2);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

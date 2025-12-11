@@ -1,49 +1,55 @@
 package station;
 
-import entity.Chef;
+import ingredient.*;
+import item.*;
+import entity.*;
+import main.GamePanel;
+import object.SuperObject;
+import inventory.Plate;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.io.IOException;
 import ingredient.Dough;
 import ingredient.Ingredient;
 import ingredient.State;
 import inventory.Plate;
 import item.Dish;
 import item.Item;
+import entity.Chef;
 import main.GamePanel;
+import object.SuperObject;
 import preparable.Preparable;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.io.IOException;
-import java.lang.annotation.Documented;
 import java.util.ArrayList;
 import java.util.List;
-// import inventory.Preparable
 
-public class AssemblyStation extends Station {
+public class IngredientStorage extends Station {
+    private String ingredientName;
+    private Ingredient ingredientItem;
     private List<Preparable> ingredients;
+
     private Plate plate;
 
-    public AssemblyStation(GamePanel gp) {
+    public IngredientStorage(GamePanel gp, Ingredient ingredient) {
         super(gp);
-        name = "Assembly Station";
-        try {
-            image = ImageIO.read(getClass().getResourceAsStream("/tiles/tile163.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        solidArea.x = 0;
-        solidArea.y = 0;
-        solidArea.width = 48;
-        solidArea.height = 48;
-        solidAreaDefaultX = solidArea.x;
-        solidAreaDefaultY = solidArea.y;
-
+        name = "Ingredient Storage";
+        this.ingredientItem = ingredient;
+        this.ingredientName = ingredient.getName();
         ingredients = new ArrayList<>();
     }
 
-    public boolean isEmpty() {
-        return ingredients.isEmpty();
+    public Ingredient getIngredientItem() throws CloneNotSupportedException {
+        gp.ui.showMessage("Took " + this.ingredientName + " from storage.");
+        return this.ingredientItem.clone();
     }
 
+    public String getIngredientName() {
+        return this.ingredientName;
+    }
+
+    @Override
     public boolean canAccept(Item item) {
         if (!(item instanceof Ingredient) && !(item instanceof Dish) && !(item instanceof Plate)) {
             return false;
@@ -55,13 +61,10 @@ public class AssemblyStation extends Station {
 
         if (item instanceof Plate) {
             Plate p = (Plate) item;
-            // Cek apakah piring kotor?
-            if (!p.isClean) {
-                // Jika Station TIDAK KOSONG (Ada ingredients ATAU ada piring lain)
-                if (!ingredients.isEmpty() || this.plate != null) {
-                    return false; // Tolak
-                }
+            if (!p.isClean && !ingredients.isEmpty()) {
+                return false;
             }
+            return true;
         }
 
         int incomingSize = (item instanceof Dish) ? ((Dish) item).getComponents().size() : 1;
@@ -71,7 +74,9 @@ public class AssemblyStation extends Station {
 
         if (ingredients.isEmpty()) {
             return true;
-        } else {
+        }
+
+        else {
             if (item instanceof Ingredient) {
                 if (((Ingredient) item).getState() == State.RAW) {
                     return false;
@@ -94,21 +99,19 @@ public class AssemblyStation extends Station {
         }
     }
 
+
     @Override
     public boolean placeItem(Item item) {
-
-        if (item instanceof Plate) {
-            Plate p = (Plate) item;
-            if (!p.isClean && (!ingredients.isEmpty() || this.plate != null)) {
-                gp.ui.showMessage("Cannot put dirty plate on food!");
-                return false;
-            }
+        if (this.plate != null && !this.plate.isClean) {
+            gp.ui.showMessage("Plate is dirty!");
+            return false;
         }
-
+        if (item instanceof Plate && !((Plate)item).isClean && !ingredients.isEmpty()) {
+            gp.ui.showMessage("Cannot put dirty plate on food!");
+            return false;
+        }
         if (!canAccept(item)) {
-            if (this.plate != null && !this.plate.isClean) {
-                gp.ui.showMessage("Plate is dirty!");
-            } else if (ingredients.size() >= 5) {
+            if (ingredients.size() >= 5) {
                 gp.ui.showMessage("Station is full!");
             } else if (!ingredients.isEmpty()) {
                 gp.ui.showMessage("Cannot assemble RAW items!");
@@ -119,23 +122,16 @@ public class AssemblyStation extends Station {
         }
 
         if (item instanceof Plate) {
-            Plate incomingPlate = (Plate) item;
-
             if (ingredients.isEmpty()){
                 gp.ui.showMessage("You placed " + item.name);
             }
-
-            plate = incomingPlate;
-
+            plate = (Plate) item;
             if (plate.dish != null) {
-                if (plate.isClean) {
-                    Dish dish = (Dish) plate.dish;
-                    placeItem(dish);
-                }
+                Dish dish = (Dish) plate.dish;
+                placeItem(dish);
             }
             return true;
         }
-
         if (item instanceof Dish) {
             Dish dish = (Dish) item;
             ingredients.addAll(dish.getComponents());
@@ -147,6 +143,7 @@ public class AssemblyStation extends Station {
         }
 
         reorderIngredients();
+
         return true;
     }
 
@@ -159,7 +156,14 @@ public class AssemblyStation extends Station {
                 gp.ui.showMessage("Picked up " + temp.name);
                 return temp;
             }
-            return null;
+            else {
+                try {
+                    gp.ui.showMessage("Picked up ingredient " + ingredientName);
+                    return getIngredientItem();
+                } catch (CloneNotSupportedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
 
         if(ingredients.size() == 1) {
@@ -173,12 +177,9 @@ public class AssemblyStation extends Station {
             Dish newDish = new Dish(componentsForDish, gp);
 
             ingredients.clear();
+            this.itemOnStation = null;
 
             if (plate != null) {
-                if (!plate.isClean) {
-                    gp.ui.showMessage("Error: Plate became dirty during assembly?");
-                    return newDish;
-                }
                 Plate temp = plate;
                 temp.dish = newDish;
                 plate = null;
@@ -189,27 +190,6 @@ public class AssemblyStation extends Station {
 
             gp.ui.showMessage("Picked up " + newDish.getDishName());
             return newDish;
-        }
-    }
-
-    public List<Preparable> getIngredients() {
-        return ingredients;
-    }
-
-    public void clearIngredients() {
-        ingredients.clear();
-    }
-
-    @Override
-    public void interact(Chef chef) {
-        if (ingredients.isEmpty()) {
-            gp.ui.showMessage("Empty Station");
-        } else {
-            StringBuilder sb = new StringBuilder("Station: ");
-            for (Preparable p : ingredients) {
-                sb.append(((Item)p).name).append(" ");
-            }
-            gp.ui.showMessage(sb.toString());
         }
     }
 
@@ -234,11 +214,33 @@ public class AssemblyStation extends Station {
         }
     }
 
+    public void showListIngredients() {
+        String temp = "";
+        for (Preparable ingredient : ingredients) {
+            Ingredient ing =  (Ingredient) ingredient;
+            temp.concat(ing.getName() + " ");
+        }
+    }
+
+    public List<Preparable> getIngredients() {
+        return ingredients;
+    }
+
+    public void clearIngredients() {
+        ingredients.clear();
+    }
+
+    @Override
+    public void interact(Chef chef) {
+        gp.ui.showMessage("Ini adalah ingredient storage " + ingredientName);
+    }
+
     @Override
     public void draw(Graphics2D g2, GamePanel gp) {
         if (image != null) {
             g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
         }
+        g2.drawImage(ingredientItem.image, x+gp.tileSize/4, y+gp.tileSize/2, gp.tileSize/2, gp.tileSize/2, null);
 
         if (plate != null && plate.image != null) {
             int margin = 4;
@@ -253,7 +255,7 @@ public class AssemblyStation extends Station {
                 Item item = (Item) p;
 
                 if (item.image != null) {
-                    int itemMargin = 10;
+                    int itemMargin = 4;
                     int itemSize = gp.tileSize - (itemMargin * 2);
 
                     int drawX = x + itemMargin;

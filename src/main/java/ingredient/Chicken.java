@@ -6,11 +6,11 @@ import preparable.Preparable;
 import javax.imageio.ImageIO;
 import java.io.IOException;
 
-public class Dough extends Ingredient {
-    public Dough(GamePanel gp) {
-        super("Dough", gp);
+public class Chicken extends Ingredient {
+    public Chicken(GamePanel gp) {
+        super("Chicken", gp);
         try {
-            image = ImageIO.read(getClass().getResourceAsStream("/objects/Dough.png"));
+            image = ImageIO.read(getClass().getResourceAsStream("/objects/Chicken.png"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -18,14 +18,14 @@ public class Dough extends Ingredient {
         type = TYPE_PICKUP;
     }
 
-    public Dough(Dough target) {
+    public Chicken(Chicken target) {
         super(target);
         this.image = target.image;
         this.collision = target.collision;
         this.type = target.type;
     }
 
-    public Dough copy() {
-        return new Dough(this);
+    public Chicken copy() {
+        return new Chicken(this);
     }
 }

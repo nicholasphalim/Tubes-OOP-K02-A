@@ -17,7 +17,8 @@ public class Oven extends KitchenUtensils implements CookingDevice {
     private Thread cookingThread;
     private volatile int progress = 0;
     private volatile boolean isCooking = false;
-    private final int DURATION_MS = 5000;
+    private final int COOKING_DURATION_MS = 12000;
+    private final int BURNING_DURATION_MS = 12000;
 
     public Oven(GamePanel gp) {
         super(gp);
@@ -31,21 +32,20 @@ public class Oven extends KitchenUtensils implements CookingDevice {
 
         if (item instanceof Ingredient) {
             Ingredient ing = (Ingredient) item;
-            return ing.canBeCooked() && ing.getName().equalsIgnoreCase("Dough");
+            return ing.canBeCooked() && ing.getName().equalsIgnoreCase("Chopped Dough");
         }
         else if (item instanceof Dish) {
             Dish dish = (Dish) item;
+            if (dish.isBurned()) return false;
             List<Preparable> dishComponents = dish.getComponents();
             boolean foundDough = false;
             for (Preparable p : dishComponents) {
                 if (p instanceof Ingredient) {
                     Ingredient ing = (Ingredient) p;
-                    if (ing.getName().equalsIgnoreCase("Dough")) {foundDough = true; break;}
+                    if (ing.getName().equalsIgnoreCase("Chopped Dough")) {foundDough = true; break;}
                 }
             }
-            return !dish.isCooked() && foundDough;
-        }
-
+            return (!dish.isCooked() || (dish.isCooked() && !dish.isBurned())) && foundDough;}
         return false;
     }
 
@@ -80,6 +80,11 @@ public class Oven extends KitchenUtensils implements CookingDevice {
             return;
         }
 
+        if (checkIfBurned(currentItem)) {
+            if(gp != null) gp.ui.showMessage("It's burned!");
+            return;
+        }
+
         if ((currentItem instanceof Dish && ((Dish)currentItem).isCooked()) ||
                 (currentItem instanceof Ingredient && ((Ingredient)currentItem).getState() == State.COOKED)) {
             if(gp != null) gp.ui.showMessage("Already cooked!");
@@ -93,17 +98,36 @@ public class Oven extends KitchenUtensils implements CookingDevice {
             try {
                 if(gp != null) gp.ui.showMessage("Baking started...");
 
-                while (progress < 100 && isCooking) {
-                    if (currentItem == null) break;
+                if (!checkIfCooked(currentItem)) {
+                    while (progress < 100 && isCooking) {
+                        if (currentItem == null) break;
 
-                    progress += (100 * 100) / DURATION_MS;
-                    if (progress > 100) progress = 100;
-
-                    Thread.sleep(100);
+                        progress += (100 * 100) / COOKING_DURATION_MS;
+                        if (progress >= 100) {
+                            progress = 100;
+                            completeCooking();
+                        }
+                        Thread.sleep(100);
+                    }
+                } else {
+                    progress = 100;
                 }
 
-                if (progress >= 100 && currentItem != null) {
-                    completeCooking();
+                while (progress < 200 && isCooking) {
+                    if (currentItem == null) break;
+
+                    progress += (100 * 100) / BURNING_DURATION_MS;
+
+                    if (progress > 150) {
+                         gp.ui.showMessage("Warning! Burning soon!");
+                    }
+
+                    if (progress >= 200) {
+                        progress = 200;
+                        burnFood();
+                        isCooking = false;
+                    }
+                    Thread.sleep(100);
                 }
 
             } catch (InterruptedException e) {
@@ -123,6 +147,7 @@ public class Oven extends KitchenUtensils implements CookingDevice {
         if (currentItem instanceof Ingredient) {
             Ingredient ing = (Ingredient) currentItem;
             ing.changeState(State.COOKED);
+            ing.updateImage();
             ing.name = "Baked " + ing.name;
         }
         else if (currentItem instanceof Dish) {
@@ -132,6 +157,40 @@ public class Oven extends KitchenUtensils implements CookingDevice {
         }
 
         System.out.println("Oven finished baking!");
+    }
+
+    private void burnFood() {
+        if (currentItem instanceof Ingredient) {
+            Ingredient ing = (Ingredient) currentItem;
+            ing.changeState(State.BURNED);
+            ing.updateImage();
+            ing.name = "Burnt Food";
+        }
+        else if (currentItem instanceof Dish) {
+            Dish dish = (Dish) currentItem;
+            dish.setBurned(true);
+            dish.name = "Burnt Dish";
+        }
+        if(gp != null) gp.ui.showMessage("Food is BURNED!");
+        System.out.println("Oven food burned!");
+    }
+
+    private boolean checkIfCooked(Item item) {
+        if (item instanceof Ingredient) {
+            return ((Ingredient) item).getState() == State.COOKED;
+        } else if (item instanceof Dish) {
+            return ((Dish) item).isCooked();
+        }
+        return false;
+    }
+
+    private boolean checkIfBurned(Item item) {
+        if (item instanceof Ingredient) {
+            return ((Ingredient) item).getState() == State.BURNED;
+        } else if (item instanceof Dish) {
+            return ((Dish) item).isBurned();
+        }
+        return false;
     }
 
     @Override public boolean isCooking() { return isCooking; }

@@ -1,6 +1,6 @@
 package main;
 
-import javax.swing.*;
+import javax.swing.JFrame;
 
 public class Main {
     public static void main(String[] args) {
@@ -13,10 +13,10 @@ public class Main {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-        frame.setTitle("Hello");
+        frame.setTitle("NimonsCooked");
 
-        gamePanel.startGameThread();
         gamePanel.setupGame();
+        gamePanel.startGameThread();
 
     }
 }
