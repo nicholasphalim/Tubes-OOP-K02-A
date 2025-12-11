@@ -6,6 +6,9 @@ import main.GamePanel;
 import object.SuperObject;
 
 import java.util.Stack;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.io.IOException;
 
 public class PlateStorage extends Station {
     private Stack<Plate> plateStack;
@@ -20,12 +23,14 @@ public class PlateStorage extends Station {
     }
 
     public void addPlate(Plate plate) {
+        gp.ui.showMessage("Added a plate to storage.");
         plateStack.push(plate);
     }
 
     @Override
     public boolean canAccept(SuperObject plate) {
-        return false; // PlateStorage does not accept plates from chefs
+        gp.ui.showMessage("Plate Storage does not accept items!");
+        return false;
     }
 
     @Override
@@ -38,8 +43,10 @@ public class PlateStorage extends Station {
     @Override
     public Plate takeItem() {
         if (plateStack.isEmpty()) {
+            gp.ui.showMessage("No plates left in storage!");
             return null;
         }
+        gp.ui.showMessage("Took a plate from storage.");
         return plateStack.pop();
     }
 }
