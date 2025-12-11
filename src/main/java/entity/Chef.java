@@ -1,5 +1,7 @@
 package entity;
 
+import inventory.Plate;
+import item.Dish;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -13,7 +15,8 @@ import item.Item;
 import main.GamePanel;
 import main.KeyHandler;
 import object.SuperObject;
-import station.Station;
+import preparable.Preparable;
+import station.*;
 
 public class Chef extends Entity {
     public GamePanel gp;
@@ -216,28 +219,110 @@ public class Chef extends Entity {
                 Station station = (Station) gp.obj[objIndex];
                 this.currentInteractionStation = station;
 
-                if (inventory != null) {
-                    boolean success = station.placeItem(inventory);
-
-                    if (success) {
-                        gp.ui.showMessage("You placed " + inventory.name);
-                        inventory = null;
-                    }
+                if (station instanceof CookingStation) {
+                    handleCookingStationInteraction((CookingStation) station);
+                }
+                else if (station instanceof TrashStation) {
+                    handleTrashStationInteraction((TrashStation) station);
                 }
                 else {
-                    Item itemTaken = station.takeItem();
-
-                    if (itemTaken != null) {
-                        inventory = itemTaken;
-                        gp.ui.showMessage("You took " + inventory.name);
-                    } else {
-                        gp.ui.showMessage("Nothing to take yet!");
-                    }
+                    handleGeneralStationInteraction(station);
                 }
             }
         } else {
             if(inventory != null){
                 dropObject();
+            }
+        }
+    }
+
+    private void handleTrashStationInteraction(TrashStation ts) {
+        if (inventory == null) return;
+
+        if (inventory instanceof Plate) {
+            Plate plate = (Plate) inventory;
+
+            if (plate.dish != null) {
+                boolean success = ts.placeItem(plate.dish);
+                if (success) {
+                    plate.dish = null;
+                    gp.ui.showMessage("Cleaned plate contents");
+                }
+            } else {
+                ts.placeItem(plate);
+            }
+        }
+        else {
+            boolean success = ts.placeItem(inventory);
+            if (success) {
+                inventory = null;
+            }
+        }
+    }
+
+    private void handleCookingStationInteraction(CookingStation cs) {
+
+        if (inventory != null) {
+
+            if (inventory instanceof Plate) {
+                Plate p = (Plate) inventory;
+                if (p.dish != null) {
+                    boolean success = cs.placeItem(p.dish);
+                    if (success) {
+                        gp.ui.showMessage("Placed dish into oven");
+                        p.dish = null;
+                    }
+                } else {
+
+                    Item cookedItem = cs.takeItem();
+                    if (cookedItem != null) {
+                        if (cookedItem instanceof Dish) {
+                            p.dish = (Dish) cookedItem;
+                            gp.ui.showMessage("Plated the cooked dish!");
+                        } else {
+                            gp.ui.showMessage("Took item with plate!");
+                        }
+                    } else {
+                        gp.ui.showMessage("Oven is empty!");
+                    }
+                }
+            }
+            else if (inventory instanceof Dish) {
+                boolean success = cs.placeItem(inventory);
+                if (success) {
+                    gp.ui.showMessage("Placed dish into oven");
+                    inventory = null;
+                }
+            }
+            else {
+                gp.ui.showMessage("Can only cook Dishes!");
+            }
+        }
+
+        else {
+            Item itemTaken = cs.takeItem();
+            if (itemTaken != null) {
+                inventory = itemTaken;
+                gp.ui.showMessage("Took " + itemTaken.name);
+            } else {
+                gp.ui.showMessage("Oven is empty!");
+            }
+        }
+    }
+
+    private void handleGeneralStationInteraction(Station station) {
+        if (inventory != null) {
+            boolean success = station.placeItem(inventory);
+            if (success) {
+                gp.ui.showMessage("You placed " + inventory.name);
+                inventory = null;
+            }
+        } else {
+            Item itemTaken = station.takeItem();
+            if (itemTaken != null) {
+                inventory = itemTaken;
+            } else {
+                gp.ui.showMessage("Nothing to take yet!");
             }
         }
     }
@@ -512,12 +597,58 @@ public class Chef extends Entity {
         int drawX = position.x - (drawWidth - gp.tileSize) / 2;
         int drawY = position.y - (drawHeight - gp.tileSize) ;
 
-
+        // Gambar chef
         g2.drawImage(image, drawX, drawY, drawWidth, drawHeight, null);
        
         g2.setColor(Color.red);
         g2.drawRect(position.x + solidArea.x, position.y + solidArea.y, solidArea.width, solidArea.height);
 
+        // Gambar item
+        if (inventory != null) {
+            int itemSize = (int) (gp.tileSize * 0.8);
+            int itemX = drawX + (drawWidth - itemSize) / 2;
+            int itemY = drawY + gp.tileSize/2;
+
+            // CASE PLATE
+            if (inventory instanceof Plate) {
+                Plate p = (Plate) inventory;
+
+                if (p.image != null) {
+                    g2.drawImage(p.image, itemX, itemY, itemSize, itemSize, null);
+                }
+
+                if (p.dish != null && p.dish instanceof Dish) {
+                    Dish d = (Dish) p.dish;
+                    int offset = 5;
+
+                    for (Preparable prep : d.getComponents()) {
+                        Item component = (Item) prep;
+                        if (component.image != null) {
+                            g2.drawImage(component.image, itemX, itemY - offset, itemSize, itemSize, null);
+                            offset += 6;
+                        }
+                    }
+                }
+            }
+            // CASE DISH
+            else if (inventory instanceof Dish) {
+                Dish d = (Dish) inventory;
+                int offset = 0;
+
+                for (Preparable prep : d.getComponents()) {
+                    Item component = (Item) prep;
+                    if (component.image != null) {
+                        g2.drawImage(component.image, itemX, itemY - offset, itemSize, itemSize, null);
+                        offset += 6;
+                    }
+                }
+            }
+            // CASE SINGLE ITEM
+            else {
+                if (inventory.image != null) {
+                    g2.drawImage(inventory.image, itemX, itemY, itemSize, itemSize, null);
+                }
+            }
         if (this == gp.activeChef) {
             g2.setColor(Color.GREEN);
 

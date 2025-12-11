@@ -1,38 +1,33 @@
 package recipe;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+
+import ingredient.Ingredient;
 import ingredient.State;
 
 public class Recipe {
     private String name;
-    private List<String> ingredientNames;
-    private List<State> ingredientStates;
+    private Map<Ingredient, State> ingredientRequirements;
 
     public Recipe(String name) {
         this.name = name;
-        this.ingredientNames = new ArrayList<>();
-        this.ingredientStates = new ArrayList<>();
+        this.ingredientRequirements = new HashMap<>();
     }
 
     public String getName() {
         return name;
     }
 
-    public void addIngredientRequirement(String ingredientName, State requiredState) {
-        ingredientNames.add(ingredientName);
-        ingredientStates.add(requiredState);
+    public void addIngredientRequirement(Ingredient ingredient, State requiredState) {
+        ingredientRequirements.put(ingredient, requiredState);
     }
 
-    public List<String> getIngredientNames() {
-        return ingredientNames;
-    }
-
-    public List<State> getIngredientStates() {
-        return ingredientStates;
+    public Map<Ingredient, State> getIngredientRequirements() {
+        return ingredientRequirements;
     }
 
     public int size() {
-        return ingredientNames.size();
+        return ingredientRequirements.size();
     }
 }

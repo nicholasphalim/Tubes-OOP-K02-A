@@ -8,10 +8,16 @@ import java.awt.Graphics2D;
 import javax.swing.JPanel;
 
 import entity.Chef;
+import ingredient.Ingredient;
+import ingredient.State;
 import object.SuperObject;
+import order.OrderList;
+import recipe.Recipe;
 import tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
+    public static int score = 0;
+
     final int originalTileSize = 16;
     final int scale = 3;
 
@@ -35,8 +41,10 @@ public class GamePanel extends JPanel implements Runnable {
     public Chef chef1;
     public Chef chef2;
     public Chef activeChef;
-    public SuperObject[] obj = new SuperObject[10];
+    public SuperObject[] obj = new SuperObject[64];
     public UI ui = new UI(this);
+    public OrderList orderList = new OrderList();
+    public int playerScore = 0;
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth,  screenHeight));
@@ -44,6 +52,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+        this.orderList = new OrderList();
     }
 
     public void setupGame(){
@@ -53,6 +62,10 @@ public class GamePanel extends JPanel implements Runnable {
         activeChef = chef1;
         
         as.setObject();
+        Recipe pizza_margherita = new Recipe("Pizza Margherita");
+         pizza_margherita.addIngredientRequirement(new Ingredient("Dough", this), State.COOKED);
+         pizza_margherita.addIngredientRequirement(new Ingredient("Tomato", this), State.COOKED);
+        orderList.addRecipe(pizza_margherita);
     }
 
     public void startGameThread() {
@@ -92,6 +105,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
+        orderList.update();
         if (keyH.swapPressed) {
             if (activeChef == chef1) {
                 activeChef = chef2;
@@ -134,5 +148,13 @@ public class GamePanel extends JPanel implements Runnable {
             ui.draw(g2);
         }
         g2.dispose();
+    }
+
+    public static int getScore() {
+        return score;
+    }
+
+    public static void addScore(int diff) {
+        GamePanel.score += diff;
     }
 }
