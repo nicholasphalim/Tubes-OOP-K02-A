@@ -10,13 +10,17 @@ import java.util.Stack;
 public class PlateStorage extends Station {
     private Stack<Plate> plateStack;
 
-    public PlateStorage() {
+    public PlateStorage(GamePanel gp) {
+        super(gp);
         try {
-            //super gp?
              this.plateStack = new Stack<>();
         } catch (OutOfMemoryError e) {
             System.err.println("Failed to initialize PlateStorage: " + e.getMessage());
         }
+    }
+
+    public void addPlate(Plate plate) {
+        plateStack.push(plate);
     }
 
     @Override
