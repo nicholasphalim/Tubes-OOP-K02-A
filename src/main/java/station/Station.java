@@ -29,9 +29,7 @@ public abstract class Station extends SuperObject {
         }
     }
 
-    public void interact(Chef chef) {
-
-    }
+    public abstract void interact(Chef chef);
 
     public Item takeItem() {
         Item item = this.itemOnStation;
@@ -52,20 +50,7 @@ public abstract class Station extends SuperObject {
         super.draw(g2, gp);
 
         if (itemOnStation != null) {
-            int itemDrawX = x;
-            int itemDrawY = y;
-
-            g2.drawImage(itemOnStation.image, itemDrawX, itemDrawY, gp.tileSize, gp.tileSize, null);
-
-            Font originalFont = g2.getFont();
-            g2.setFont(originalFont.deriveFont(Font.PLAIN, 10f));
-            g2.setColor(Color.BLACK);
-            FontMetrics fm = g2.getFontMetrics();
-            int textWidth = fm.stringWidth(itemOnStation.name);
-            int textX = x + (gp.tileSize - textWidth) / 2;
-            int textY = y + gp.tileSize;
-//            g2.drawString(itemOnStation.name, textX, textY);
-            g2.setFont(originalFont);
+            g2.drawImage(itemOnStation.image, x, y, gp.tileSize, gp.tileSize, null);
         }
     }
 }

@@ -13,13 +13,11 @@ import preparable.Preparable;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.IOException;
-import java.lang.annotation.Documented;
-import java.util.ArrayList;
-import java.util.List;
-// import inventory.Preparable
+import java.util.HashSet;
+import java.util.Set;
 
 public class AssemblyStation extends Station {
-    private List<Preparable> ingredients;
+    private final Set<Preparable> ingredients;
     private Plate plate;
 
     public AssemblyStation(GamePanel gp) {
@@ -37,7 +35,7 @@ public class AssemblyStation extends Station {
         solidAreaDefaultX = solidArea.x;
         solidAreaDefaultY = solidArea.y;
 
-        ingredients = new ArrayList<>();
+        ingredients = new HashSet<>();
     }
 
     public boolean isEmpty() {
@@ -163,12 +161,12 @@ public class AssemblyStation extends Station {
         }
 
         if(ingredients.size() == 1) {
-            Ingredient temp  = (Ingredient) ingredients.get(0);
+            Ingredient temp  = (Ingredient) ingredients.iterator().next();
             ingredients.clear();
             gp.ui.showMessage("Picked up " + temp.name);
             return temp;
         } else {
-            List<Preparable> componentsForDish = new ArrayList<>(ingredients);
+            Set<Preparable> componentsForDish = new HashSet<>(ingredients);
 
             Dish newDish = new Dish(componentsForDish, gp);
 
@@ -192,7 +190,7 @@ public class AssemblyStation extends Station {
         }
     }
 
-    public List<Preparable> getIngredients() {
+    public Set<Preparable> getIngredients() {
         return ingredients;
     }
 
@@ -214,24 +212,6 @@ public class AssemblyStation extends Station {
     }
 
     private void reorderIngredients() {
-        if (ingredients.isEmpty()) return;
-
-        Preparable dough = null;
-
-        for (Preparable p : ingredients) {
-            if (p instanceof Ingredient) {
-                Ingredient ing = (Ingredient) p;
-                if (ing instanceof Dough) {
-                    dough = p;
-                    break;
-                }
-            }
-        }
-
-        if (dough != null) {
-            ingredients.remove(dough);
-            ingredients.add(0, dough);
-        }
     }
 
     @Override

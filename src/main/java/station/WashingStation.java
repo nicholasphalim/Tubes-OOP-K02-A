@@ -1,23 +1,17 @@
 package station;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
-
 import entity.Action;
 import entity.Chef;
-import ingredient.Ingredient;
-import ingredient.State;
 import inventory.Plate;
-import item.Dish;
 import item.Item;
 import main.GamePanel;
-import preparable.Preparable;
+
+import java.awt.*;
+import java.util.Stack;
 
 public class WashingStation extends Station {
-    private boolean isSink;
-    private Stack<Plate> plates;
+    private final boolean isSink;
+    private final Stack<Plate> plates;
     private WashingStation cleanStack;
 
     private Thread washingThread;
@@ -33,12 +27,8 @@ public class WashingStation extends Station {
         super(gp);
         this.isSink = isSink;
         this.plates = new Stack<>();
-        this.cleanStack = cleanStack;
     }
 
-//    public void addDirtyPlate(Plate p) {
-//        dirtyPlates.push(p);
-//    }
     public void setCleanStack(WashingStation cleanStack) {
         this.cleanStack = cleanStack;
     }

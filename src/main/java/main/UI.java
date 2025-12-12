@@ -167,6 +167,8 @@ public class UI {
         g2.drawString("[ W, A, S, D ]  :  Move Chef", gp.tileSize * 2, lineStart);
         g2.drawString("[ E ]  :  Pick Up / Drop Item", gp.tileSize * 2, lineStart + lineHeight);
         g2.drawString("[ C ]  :  Interact (Chop / Cook / Wash)", gp.tileSize * 2, lineStart + lineHeight * 2);
+        g2.drawString("[ Space ]  :  Switch Chef", gp.tileSize * 2, lineStart + lineHeight * 3);
+        g2.drawString("[ Shift ]  :  Dash", gp.tileSize * 2, lineStart + lineHeight * 4);
 
         // 4. Instructions Section
         g2.setFont(arial_20B);

@@ -7,7 +7,7 @@ import inventory.KitchenUtensils;
 import main.GamePanel;
 import preparable.Preparable;
 
-import java.util.List;
+import java.util.Set;
 
 public class Oven extends KitchenUtensils implements CookingDevice {
 
@@ -37,7 +37,7 @@ public class Oven extends KitchenUtensils implements CookingDevice {
         else if (item instanceof Dish) {
             Dish dish = (Dish) item;
             if (dish.isBurned()) return false;
-            List<Preparable> dishComponents = dish.getComponents();
+            Set<Preparable> dishComponents = dish.getComponents();
             boolean foundDough = false;
             for (Preparable p : dishComponents) {
                 if (p instanceof Ingredient) {
