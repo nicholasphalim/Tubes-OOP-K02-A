@@ -1,13 +1,13 @@
 package item;
 
+import java.util.Set;
+
 import ingredient.Ingredient;
 import ingredient.State;
 import inventory.CookingDevice;
 import inventory.KitchenUtensils;
 import main.GamePanel;
 import preparable.Preparable;
-
-import java.util.Set;
 
 public class Oven extends KitchenUtensils implements CookingDevice {
 
@@ -156,7 +156,9 @@ public class Oven extends KitchenUtensils implements CookingDevice {
             Dish dish = (Dish) currentItem;
             dish.setCooked(true);
         }
-
+        if(gp != null) {
+            gp.ui.showMessage("Oven finished baking!");
+        }
         System.out.println("Oven finished baking!");
     }
 

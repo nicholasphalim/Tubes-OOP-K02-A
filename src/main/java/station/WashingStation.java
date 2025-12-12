@@ -1,13 +1,15 @@
 package station;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.util.Stack;
+
 import entity.Action;
 import entity.Chef;
 import inventory.Plate;
 import item.Item;
 import main.GamePanel;
-
-import java.awt.*;
-import java.util.Stack;
 
 public class WashingStation extends Station {
     private final boolean isSink;
@@ -224,7 +226,7 @@ public class WashingStation extends Station {
             int barX = x + (gp.tileSize - barWidth) / 2;
             int barY = y + 10;
 
-            g2.setColor(Color.RED);
+            g2.setColor(new Color(80, 80, 80));
             g2.fillRect(barX, barY, barWidth, barHeight);
 
             g2.setColor(Color.GREEN);

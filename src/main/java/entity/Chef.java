@@ -1,9 +1,5 @@
 package entity;
 
-import ingredient.Dough;
-import ingredient.State;
-import inventory.Plate;
-import item.Dish;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -13,12 +9,19 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import ingredient.Dough;
+import ingredient.State;
+import inventory.Plate;
+import item.Dish;
 import item.Item;
 import main.GamePanel;
 import main.KeyHandler;
 import object.SuperObject;
 import preparable.Preparable;
-import station.*;
+import station.CookingStation;
+import station.ServingCounter;
+import station.Station;
+import station.TrashStation;
 
 public class Chef extends Entity {
     public GamePanel gp;
@@ -227,6 +230,9 @@ public class Chef extends Entity {
                 else if (station instanceof TrashStation) {
                     handleTrashStationInteraction((TrashStation) station);
                 }
+                else if (station instanceof ServingCounter) {
+                    handleServingCounterInteraction((ServingCounter) station);
+                }
                 else {
                     handleGeneralStationInteraction(station);
                 }
@@ -235,6 +241,18 @@ public class Chef extends Entity {
             if(inventory != null){
                 dropObject();
             }
+        }
+    }
+
+    private void handleServingCounterInteraction(ServingCounter sc) {
+        if (inventory != null) {
+            boolean success = sc.placeItem(inventory);
+            
+            if (success) {
+                inventory = null;
+            }
+        } else {
+            gp.ui.showMessage("Nothing to serve!");
         }
     }
 
@@ -659,6 +677,7 @@ public class Chef extends Entity {
                     g2.drawImage(inventory.image, itemX, itemY, itemSize, itemSize, null);
                 }
             }
+        }
         if (this == gp.activeChef) {
             g2.setColor(Color.GREEN);
 
@@ -692,5 +711,4 @@ public class Chef extends Entity {
 
         }
     }
-}
 }

@@ -1,17 +1,16 @@
 package station;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import entity.Chef;
 import inventory.CookingDevice;
 import inventory.Plate;
-import item.Dish;
 import item.Item;
 import main.GamePanel;
-import preparable.Preparable;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.io.IOException;
-import java.util.ArrayList;
 
 
 
@@ -82,15 +81,27 @@ public class CookingStation extends Station {
             int barX = x + (gp.tileSize - barWidth) / 2;
             int barY = y - 10;
 
-            g2.setColor(Color.RED);
+            g2.setColor(new Color(80, 80, 80));
             g2.fillRect(barX, barY, barWidth, barHeight);
 
-            g2.setColor(Color.GREEN);
             double currentProgress = cookingDevice.getProgress();
-            if (currentProgress >= 100) {currentProgress = 100;}
-            int greenWidth = (int)((currentProgress / 100.0) * barWidth);
-            g2.fillRect(barX, barY, greenWidth, barHeight);
 
+            if (currentProgress <= 100) {
+                g2.setColor(Color.GREEN);
+                int fillWidth = (int)((currentProgress / 100.0) * barWidth);
+                g2.fillRect(barX, barY, fillWidth, barHeight);
+            } else {
+                g2.setColor(Color.GREEN);
+                g2.fillRect(barX, barY, barWidth, barHeight);
+
+                double burnProgress = currentProgress - 100;
+                if (burnProgress > 100) burnProgress = 100;
+
+                g2.setColor(new Color(255, 120, 0)); // Warna Oranye Bahaya
+                int fillWidth = (int)((burnProgress / 100.0) * barWidth);
+                g2.fillRect(barX, barY, fillWidth, barHeight);
+            }
+            
             g2.setColor(Color.BLACK);
             g2.drawRect(barX, barY, barWidth, barHeight);
         }

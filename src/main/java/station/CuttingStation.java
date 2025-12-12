@@ -1,5 +1,14 @@
 package station;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.imageio.ImageIO;
+
 import entity.Action;
 import entity.Chef;
 import ingredient.Dough;
@@ -10,12 +19,6 @@ import item.Dish;
 import item.Item;
 import main.GamePanel;
 import preparable.Preparable;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 public class CuttingStation extends Station{
 
@@ -378,7 +381,7 @@ public class CuttingStation extends Station{
             int barX = x + (gp.tileSize - barWidth) / 2;
             int barY = y + 10;
 
-            g2.setColor(Color.RED);
+            g2.setColor(new Color(80, 80, 80));
             g2.fillRect(barX, barY, barWidth, barHeight);
 
             g2.setColor(Color.GREEN);
