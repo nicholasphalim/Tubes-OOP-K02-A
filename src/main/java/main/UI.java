@@ -373,7 +373,7 @@ public class UI {
         int y = gp.screenHeight/2 - 3*gp.tileSize;
         g2.drawString(text, x, y);
 
-        g2.drawImage(mappreview, x - 10, y + gp.tileSize, gp.tileSize*6 , gp.tileSize*4,  null);
+        g2.drawImage(mappreview, x + 50, y + gp.tileSize, gp.tileSize*6 , gp.tileSize*4,  null);
 
         if (GamePanel.playerScore >= gp.MIN_SCORE_TO_PASS) {
             g2.setFont(arial_40B);
