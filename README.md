@@ -6,6 +6,8 @@ Institut Teknologi Bandung
 
 ---
 
+![NimonsCooked](./src/main/resources/res/titlescreen.png)
+
 ## Deskripsi Project
 
 NimonsCooked adalah game simulasi dapur yang terinspirasi dari Overcooked. Pemain berperan sebagai koki yang harus mengelola berbagai stasiun dapur, memproses bahan makanan, memasak hidangan, dan melayani pesanan pelanggan dalam batas waktu tertentu.
@@ -18,7 +20,7 @@ Game ini dibangun menggunakan Java dengan menerapkan prinsip-prinsip Pemrograman
 
 ### Gameplay
 - **Multiplayer Co-op**: Kontrol 2 koki secara bergantian (swap dengan tombol Space)
-- **Stasiun Dapur**: 8+ jenis stasiun (Cutting, Cooking, Assembly, Washing, dll)
+- **Stasiun Dapur**: 8 jenis stasiun (Cutting, Cooking, Assembly, Washing, dll)
 - **Sistem Order**: Pesanan dinamis dengan timer dan scoring
 - **Mekanik Kompleks**: Potong, masak, rakit, dan sajikan hidangan
 - **Win/Lose Conditions**: Capai skor minimum atau gagal karena kesalahan beruntun
@@ -280,9 +282,15 @@ java -jar build/libs/NimonsCook-1.0.0.jar
 
 ---
 
-## Tim Pengembang
+## Anggota Kelompok
 
 Kelompok A - Kelas K02  
+* 18219062 - Rahmat Pujiatno
+* 18224066 - Emir Muhammad Firassiyan
+* 18224088 - Salsabila Shofiyah
+* 18224098 - Nicholas Putra Halim
+* 18224106 - Gifta Mooira Prasharnissa
+
 Tugas Besar Pemrograman Berorientasi Objek  
 Institut Teknologi Bandung  
 2025/2026
