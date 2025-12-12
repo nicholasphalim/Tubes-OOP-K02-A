@@ -1,17 +1,18 @@
 package station;
 
+import entity.Chef;
 import inventory.Plate;
 import item.Item;
-import order.*;
 import main.GamePanel;
-import entity.Chef;
+import order.Order;
+import order.OrderList;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
 
 public class ServingCounter extends Station {
-    private static int penalty = 20;
-    private OrderList orderList;
+    private static final int PENALTY = 20;
+    private final OrderList orderList;
 
 
     public ServingCounter(GamePanel gp, OrderList orderList) {
@@ -72,7 +73,7 @@ public class ServingCounter extends Station {
 
         this.itemOnStation = plate;
 
-        Order matched = orderList.matchAndRemoveOrder(plate.dish);
+        Order matched = orderList.validateOrder(plate.dish);
 
         if (matched != null) {
             int score = matched.getReward();
@@ -83,9 +84,9 @@ public class ServingCounter extends Station {
             gp.resetFailureCount();
             gp.playerScore += score;
         } else {
-            gp.ui.showMessage("Wrong Order! -" + penalty);
-            System.out.println("Wrong Order! -" + penalty);
-            GamePanel.addScore(-penalty);
+            gp.ui.showMessage("Wrong Order! -" + PENALTY);
+            System.out.println("Wrong Order! -" + PENALTY);
+            GamePanel.addScore(-PENALTY);
             gp.addFailure();
         }
         consume(plate);

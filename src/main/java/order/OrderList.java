@@ -82,7 +82,7 @@ public class OrderList {
          System.out.println("New Order Generated: " + randomRecipe.getName());
     }
 
-    public Order matchAndRemoveOrder(Dish dishServed) {
+    public Order validateOrder(Dish dishServed) {
         if (orders.isEmpty()) return null;
         if (dishServed == null) return null;
 
