@@ -1,18 +1,17 @@
 package item;
 
+import java.awt.Graphics2D;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
+
+import javax.imageio.ImageIO;
+
 import ingredient.Ingredient;
 import ingredient.State;
 import main.GamePanel;
 import preparable.Preparable;
 import recipe.Recipe;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 public class Dish extends Item {
     private Set<Preparable> components;
@@ -88,58 +87,49 @@ public class Dish extends Item {
     }
 
     public boolean isBurned() {
-        return isBurned;
+        if (this.isBurned) return true;
+        for (Preparable p : components) {
+            if (p instanceof Ingredient) {
+                // Cek state ingredient
+                if (((Ingredient) p).getState() == State.BURNED) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public boolean isDone(Recipe recipe) {
         if (recipe == null) return false;
 
-//        System.out.println("\n  --- Dish.isDone() DEBUG ---");
-//        System.out.println("  Recipe: " + recipe.getName() + " (requires " + recipe.size() + " ingredients)");
-//        System.out.println("  Dish has: " + components.size() + " components");
-
-        if (components.size() != recipe.size()) {
-//            System.out.println("Size mismatch!");
-            return false;
-        }
+        if (components.size() != recipe.size()) return false;
 
         java.util.List<Ingredient> remaining = new java.util.ArrayList<>();
         for (Preparable p : components) {
-            if (!(p instanceof Ingredient)) {
-//                System.out.println("Component is not an Ingredient!");
-                return false;
-            }
+            if (!(p instanceof Ingredient)) return false;
             remaining.add((Ingredient) p);
         }
 
-//        System.out.println("  Matching ingredients:");
         for (Map.Entry<Ingredient, State> entry : recipe.getIngredientRequirements().entrySet()) {
             String reqName = entry.getKey().getName();
             State reqState = entry.getValue();
-//            System.out.println("    Looking for: " + reqName + " [" + reqState + "]");
+//            System.out.println(reqName + " " + reqState);
 
             int foundIndex = -1;
             for (int i = 0; i < remaining.size(); i++) {
                 Ingredient ing = remaining.get(i);
-//                System.out.println("      Comparing with: " + ing.getIngName() + " [" + ing.getState() + "]");
+//                System.out.println(ing.getIngName() + " " + ing.getState());
                 if (reqName.equals(ing.getIngName()) && ing.getState() == reqState) {
                     foundIndex = i;
-//                    System.out.println("MATCH found!");
                     break;
                 }
             }
 
-            if (foundIndex == -1) {
-//                System.out.println("No match found for: " + reqName + " [" + reqState + "]");
-                return false;
-            }
+            if (foundIndex == -1) return false;
             remaining.remove(foundIndex);
         }
 
-        boolean result = remaining.isEmpty();
-//        System.out.println("  Result: " + (result ? "VALID" : "INVALID (extra ingredients)"));
-//        System.out.println("  ---------------------------\n");
-        return result;
+        return remaining.isEmpty();
 
         
         // if (recipe == null) return false;
@@ -171,25 +161,13 @@ public class Dish extends Item {
             int margin = 4;
             int size = gp.tileSize - (margin * 2);
 
-            // dough di bawah
             for (Preparable p : getComponents()) {
-                if (p instanceof ingredient.Dough) {
-                    Item item = (Item) p;
-                    if (item.image != null) {
-                        g2.drawImage(item.image, x + margin, y + margin - offset, size, size, null);
-                        offset += 2;
-                    }
-                }
-            }
+                Item item = (Item) p;
 
-            // ingredient lain
-            for (Preparable p : getComponents()) {
-                if (!(p instanceof ingredient.Dough)) {
-                    Item item = (Item) p;
-                    if (item.image != null) {
-                        g2.drawImage(item.image, x + margin, y + margin - offset, size, size, null);
-                        offset += 2;
-                    }
+                if (item.image != null) {
+                    g2.drawImage(item.image, x + margin, y + margin - offset, size, size, null);
+
+                    offset += 2;
                 }
             }
         } else {

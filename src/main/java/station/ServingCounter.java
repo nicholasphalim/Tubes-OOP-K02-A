@@ -1,14 +1,15 @@
 package station;
 
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import entity.Chef;
 import inventory.Plate;
 import item.Item;
 import main.GamePanel;
 import order.Order;
 import order.OrderList;
-
-import javax.imageio.ImageIO;
-import java.io.IOException;
 
 public class ServingCounter extends Station {
     private static final int PENALTY = 20;
@@ -39,6 +40,12 @@ public class ServingCounter extends Station {
     @Override
     public boolean placeItem(Item item) {
         if (canAccept(item)) {
+            Plate plate = (Plate) item;
+            if (plate.dish != null && plate.dish.isBurned()) {
+                gp.ui.showMessage("Can't serve Burnt Food! Trash it!");
+                return false; 
+            }
+
             serve((Plate) item);
 
             return true;

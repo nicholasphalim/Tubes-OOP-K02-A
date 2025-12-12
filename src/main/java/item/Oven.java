@@ -167,11 +167,24 @@ public class Oven extends KitchenUtensils implements CookingDevice {
             Ingredient ing = (Ingredient) currentItem;
             ing.changeState(State.BURNED);
             ing.updateImage();
+            ing.name = "Burnt Food";
         }
         else if (currentItem instanceof Dish) {
             Dish dish = (Dish) currentItem;
             dish.setBurned(true);
+            dish.name = "Burnt Dish";
+
+            for (Preparable p : dish.getComponents()) {
+                if (p instanceof Ingredient) {
+                    Ingredient ing = (Ingredient) p;
+                    // Ubah status jadi BURNED
+                    ing.changeState(State.BURNED);
+                    // Update gambar jadi hitam/gosong
+                    ing.updateImage(); 
+                }
+            }
         }
+        
         if(gp != null) gp.ui.showMessage("Food is BURNED!");
         System.out.println("Oven food burned!");
     }
