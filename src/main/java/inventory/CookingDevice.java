@@ -1,7 +1,6 @@
 package inventory;
 
 import item.Item;
-import preparable.Preparable;
 
 public interface CookingDevice {
     boolean canAccept(Item item);

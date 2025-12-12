@@ -51,7 +51,7 @@ public class Plate extends KitchenUtensils {
 
     public void addIngredient(Item ingredient) {
         if (canAccept(ingredient)) {
-            this.contents.add(ingredient);
+            this.storage.addItem(ingredient);
         }
     }
 

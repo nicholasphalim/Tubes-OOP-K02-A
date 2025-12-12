@@ -1,34 +1,23 @@
 package station;
 
-import ingredient.*;
-import item.*;
-import entity.*;
-import main.GamePanel;
-import object.SuperObject;
-import inventory.Plate;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.io.IOException;
+import entity.Chef;
 import ingredient.Dough;
 import ingredient.Ingredient;
 import ingredient.State;
 import inventory.Plate;
 import item.Dish;
 import item.Item;
-import entity.Chef;
 import main.GamePanel;
-import object.SuperObject;
 import preparable.Preparable;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class IngredientStorage extends Station {
-    private String ingredientName;
-    private Ingredient ingredientItem;
-    private List<Preparable> ingredients;
+    private final String ingredientName;
+    private final Ingredient ingredientItem;
+    private final Set<Preparable> ingredients;
 
     private Plate plate;
 
@@ -37,7 +26,7 @@ public class IngredientStorage extends Station {
         name = "Ingredient Storage";
         this.ingredientItem = ingredient;
         this.ingredientName = ingredient.getName();
-        ingredients = new ArrayList<>();
+        ingredients = new HashSet<>();
     }
 
     public Ingredient getIngredientItem() throws CloneNotSupportedException {
@@ -59,12 +48,8 @@ public class IngredientStorage extends Station {
             return false;
         }
 
-        if (item instanceof Plate) {
-            Plate p = (Plate) item;
-            if (!p.isClean && !ingredients.isEmpty()) {
-                return false;
-            }
-            return true;
+        if (item instanceof Plate p) {
+            return p.isClean || ingredients.isEmpty();
         }
 
         int incomingSize = (item instanceof Dish) ? ((Dish) item).getComponents().size() : 1;
@@ -127,13 +112,11 @@ public class IngredientStorage extends Station {
             }
             plate = (Plate) item;
             if (plate.dish != null) {
-                Dish dish = (Dish) plate.dish;
-                placeItem(dish);
+                placeItem(plate.dish);
             }
             return true;
         }
-        if (item instanceof Dish) {
-            Dish dish = (Dish) item;
+        if (item instanceof Dish dish) {
             ingredients.addAll(dish.getComponents());
             gp.ui.showMessage("Added contents of " + item.name);
         }
@@ -167,12 +150,12 @@ public class IngredientStorage extends Station {
         }
 
         if(ingredients.size() == 1) {
-            Ingredient temp  = (Ingredient) ingredients.get(0);
+            Ingredient temp  = (Ingredient) ingredients.iterator().next();
             ingredients.clear();
             gp.ui.showMessage("Picked up " + temp.name);
             return temp;
         } else {
-            List<Preparable> componentsForDish = new ArrayList<>(ingredients);
+            Set<Preparable> componentsForDish = new HashSet<>(ingredients);
 
             Dish newDish = new Dish(componentsForDish, gp);
 
@@ -199,30 +182,16 @@ public class IngredientStorage extends Station {
         Preparable dough = null;
 
         for (Preparable p : ingredients) {
-            if (p instanceof Ingredient) {
-                Ingredient ing = (Ingredient) p;
-                if (ing instanceof Dough) {
-                    dough = p;
-                    break;
-                }
+            if (p instanceof Ingredient ing && ing instanceof Dough) {
+                dough = p;
+                break;
             }
         }
 
-        if (dough != null) {
-            ingredients.remove(dough);
-            ingredients.add(0, dough);
-        }
     }
 
-    public void showListIngredients() {
-        String temp = "";
-        for (Preparable ingredient : ingredients) {
-            Ingredient ing =  (Ingredient) ingredient;
-            temp.concat(ing.getName() + " ");
-        }
-    }
 
-    public List<Preparable> getIngredients() {
+    public Set<Preparable> getIngredients() {
         return ingredients;
     }
 

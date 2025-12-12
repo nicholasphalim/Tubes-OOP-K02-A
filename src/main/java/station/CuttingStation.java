@@ -14,8 +14,8 @@ import preparable.Preparable;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class CuttingStation extends Station{
 
@@ -26,7 +26,7 @@ public class CuttingStation extends Station{
     public volatile boolean cutting = false;
     private Chef currentChef;
 
-    private List<Preparable> ingredientsStack;
+    private Set<Preparable> ingredientsStack;
     private final int MAX_CAPACITY = 5;
 
     private Plate plate;
@@ -47,7 +47,7 @@ public class CuttingStation extends Station{
         solidAreaDefaultY = solidArea.y;
 
         currentCuttingProgress = 0;
-        ingredientsStack = new ArrayList<>();
+        ingredientsStack = new HashSet<>();
     }
 
     public int getCurrentCuttingProgress() {
@@ -167,12 +167,12 @@ public class CuttingStation extends Station{
         }
 
         if(ingredientsStack.size() == 1) {
-            Ingredient temp  = (Ingredient) ingredientsStack.get(0);
+            Ingredient temp  = (Ingredient) ingredientsStack.iterator().next();
             ingredientsStack.clear();
             gp.ui.showMessage("Picked up " + temp.name);
             return temp;
         } else {
-            List<Preparable> componentsForDish = new ArrayList<>(ingredientsStack);
+            Set<Preparable> componentsForDish = new HashSet<>(ingredientsStack);
 
             Dish newDish = new Dish(componentsForDish, gp);
 
@@ -207,10 +207,6 @@ public class CuttingStation extends Station{
             }
         }
 
-        if (dough != null) {
-            ingredientsStack.remove(dough);
-            ingredientsStack.add(0, dough);
-        }
     }
 
     @Override
@@ -222,7 +218,7 @@ public class CuttingStation extends Station{
         }
 
         if (ingredientsStack.size() == 1 && plate == null) {
-            Ingredient ing = (Ingredient) ingredientsStack.get(0);
+            Ingredient ing = (Ingredient) ingredientsStack.iterator().next();
             if (!ing.canBeChopped()) {
                 chef.gp.ui.showMessage("You can't chop that!");
                 chef.currentInteractionStation = null;

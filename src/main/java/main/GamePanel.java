@@ -45,7 +45,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Chef activeChef;
     public SuperObject[] obj = new SuperObject[64];
 
-    public OrderList orderList = new OrderList(this);
+    public OrderList orderList;
 
     // GAME STATE & RULES
     public int gameState;
@@ -94,7 +94,7 @@ public class GamePanel extends JPanel implements Runnable {
         pizza_margherita.addIngredientRequirement(new Ingredient("Dough", this), State.COOKED);
         pizza_margherita.addIngredientRequirement(new Ingredient("Tomato", this), State.COOKED);
         pizza_margherita.addIngredientRequirement(new Ingredient("Cheese", this), State.COOKED);
-        orderList.addRecipe(pizza_margherita);
+
 
         Recipe pizza_sosis = new Recipe("Pizza Sosis");
         pizza_sosis.addIngredientRequirement(new Ingredient("Dough", this), State.COOKED);
@@ -134,12 +134,11 @@ public class GamePanel extends JPanel implements Runnable {
 
     @Override
     public void run() {
-        double drawInterval = 1000000000 / FPS;
+        double drawInterval = 1000000000.0 / FPS;
         double delta = 0;
         long lastTime = System.nanoTime();
         long currentTime;
         long timer = 0;
-        int drawCount = 0;
 
         while (gameThread != null) {
             currentTime = System.nanoTime();
@@ -152,12 +151,9 @@ public class GamePanel extends JPanel implements Runnable {
                 update();
                 repaint();
                 delta--;
-                drawCount++;
             }
 
             if (timer >= 1000000000) {
-//                System.out.println("FPS: " + drawCount);
-                drawCount = 0;
                 timer = 0;
             }
         }
@@ -221,9 +217,9 @@ public class GamePanel extends JPanel implements Runnable {
             ui.draw(g2);
         } else {
             tm.draw(g2);
-            for (int i = 0; i<obj.length; i++){
-                if(obj[i] != null){
-                    obj[i].draw(g2, this);
+            for (SuperObject superObject : obj) {
+                if (superObject != null) {
+                    superObject.draw(g2, this);
                 }
             }
             if (chef1 != null) {

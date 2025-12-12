@@ -1,11 +1,5 @@
 package item;
 
-import java.awt.*;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import ingredient.Ingredient;
 import ingredient.State;
 import main.GamePanel;
@@ -13,13 +7,19 @@ import preparable.Preparable;
 import recipe.Recipe;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class Dish extends Item {
-    private List<Preparable> components;
+    private Set<Preparable> components;
     private boolean isCooked;
     private boolean isBurned =  false;
 
-    public Dish(List<Preparable> components, GamePanel gp) {
+    public Dish(Set<Preparable> components, GamePanel gp) {
         super(gp);
         this.components = components;
         this.name = generateName();
@@ -37,13 +37,15 @@ public class Dish extends Item {
         }
 
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < components.size(); i++) {
-            Item item = (Item) components.get(i);
+        int count = 0;
+        for (Preparable p : components) {
+            Item item = (Item) p;
             sb.append(item.name);
 
-            if (i < components.size() - 1) {
+            if (count < components.size() - 1) {
                 sb.append(" + ");
             }
+            count++;
         }
         return sb.toString();
     }
@@ -52,7 +54,7 @@ public class Dish extends Item {
         return name;
     }
 
-    public List<Preparable> getComponents(){
+    public Set<Preparable> getComponents(){
         return components;
     }
 
@@ -94,7 +96,7 @@ public class Dish extends Item {
 
         if (components.size() != recipe.size()) return false;
 
-        List<Ingredient> remaining = new ArrayList<>();
+        java.util.List<Ingredient> remaining = new java.util.ArrayList<>();
         for (Preparable p : components) {
             if (!(p instanceof Ingredient)) return false;
             remaining.add((Ingredient) p);
