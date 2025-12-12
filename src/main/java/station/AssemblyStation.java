@@ -229,23 +229,45 @@ public class AssemblyStation extends Station {
         if (!ingredients.isEmpty()) {
             int stackOffset = 0;
 
+            // Draw dough first (at the bottom)
             for (Preparable p : ingredients) {
-                Item item = (Item) p;
+                if (p instanceof ingredient.Dough) {
+                    Item item = (Item) p;
+                    if (item.image != null) {
+                        int itemMargin = 10;
+                        int itemSize = gp.tileSize - (itemMargin * 2);
 
-                if (item.image != null) {
-                    int itemMargin = 10;
-                    int itemSize = gp.tileSize - (itemMargin * 2);
+                        int drawX = x + itemMargin;
+                        int drawY = y + itemMargin - stackOffset;
 
-                    int drawX = x + itemMargin;
-                    int drawY = y + itemMargin - stackOffset;
+                        if (plate != null) {
+                            drawY -= 5;
+                        }
 
-                    if (plate != null) {
-                        drawY -= 5;
+                        g2.drawImage(item.image, drawX, drawY, itemSize, itemSize, null);
+                        stackOffset += 2;
                     }
+                }
+            }
 
-                    g2.drawImage(item.image, drawX, drawY, itemSize, itemSize, null);
+            // Draw other ingredients on top
+            for (Preparable p : ingredients) {
+                if (!(p instanceof ingredient.Dough)) {
+                    Item item = (Item) p;
+                    if (item.image != null) {
+                        int itemMargin = 10;
+                        int itemSize = gp.tileSize - (itemMargin * 2);
 
-                    stackOffset += 2;
+                        int drawX = x + itemMargin;
+                        int drawY = y + itemMargin - stackOffset;
+
+                        if (plate != null) {
+                            drawY -= 5;
+                        }
+
+                        g2.drawImage(item.image, drawX, drawY, itemSize, itemSize, null);
+                        stackOffset += 2;
+                    }
                 }
             }
         }

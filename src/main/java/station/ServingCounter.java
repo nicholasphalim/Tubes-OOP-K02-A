@@ -69,7 +69,16 @@ public class ServingCounter extends Station {
         if (plate == null || plate.dish == null) return;
         if (gp.gameState != gp.playState) return;
 
-        System.out.println("Serving Counter");
+//        System.out.println("\n========== SERVING COUNTER DEBUG ==========");
+//        System.out.println("Serving dish: " + plate.dish.getDishName());
+//        System.out.println("Dish components:");
+//        for (preparable.Preparable p : plate.dish.getComponents()) {
+//            if (p instanceof ingredient.Ingredient) {
+//                ingredient.Ingredient ing = (ingredient.Ingredient) p;
+//                System.out.println("  - " + ing.getIngName() + " [State: " + ing.getState() + "]");
+//            }
+//        }
+//        System.out.println("===========================================\n");
 
         this.itemOnStation = plate;
 
@@ -79,13 +88,10 @@ public class ServingCounter extends Station {
             int score = matched.getReward();
 
             gp.ui.showMessage("Served Correctly! +" + score);
-            System.out.println("Served Correctly! +" + score);
             GamePanel.addScore(matched.getReward());
             gp.resetFailureCount();
-            gp.playerScore += score;
         } else {
             gp.ui.showMessage("Wrong Order! -" + PENALTY);
-            System.out.println("Wrong Order! -" + PENALTY);
             GamePanel.addScore(-PENALTY);
             gp.addFailure();
         }

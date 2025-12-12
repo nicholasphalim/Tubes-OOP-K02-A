@@ -629,13 +629,13 @@ public class Chef extends Entity {
 
                 if (p.dish != null && p.dish instanceof Dish) {
                     Dish d = (Dish) p.dish;
-                    int offset = 5;
+                    int offset = 0;
 
                     for (Preparable prep : d.getComponents()) {
                         Item component = (Item) prep;
                         if (component.image != null) {
                             g2.drawImage(component.image, itemX, itemY - offset, itemSize, itemSize, null);
-                            offset += 6;
+                            offset += 2;
                         }
                     }
                 }
@@ -649,7 +649,7 @@ public class Chef extends Entity {
                     Item component = (Item) prep;
                     if (component.image != null) {
                         g2.drawImage(component.image, itemX, itemY - offset, itemSize, itemSize, null);
-                        offset += 6;
+                        offset += 2;
                     }
                 }
             }

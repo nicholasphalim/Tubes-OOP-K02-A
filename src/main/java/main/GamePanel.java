@@ -84,17 +84,18 @@ public class GamePanel extends JPanel implements Runnable {
         chef1 = new Chef(this, keyH, tileSize * 3, tileSize * 3);
         chef2 = new Chef(this, keyH, tileSize * 3, tileSize * 7);
         activeChef = chef1;
-        as.setObject();
         setupRecipes();
+        as.setObject();
     }
 
     private void setupRecipes() {
-        orderList = new OrderList(this);
+        orderList.clearAll();
+
         Recipe pizza_margherita = new Recipe("Pizza Margherita");
         pizza_margherita.addIngredientRequirement(new Ingredient("Dough", this), State.COOKED);
         pizza_margherita.addIngredientRequirement(new Ingredient("Tomato", this), State.COOKED);
         pizza_margherita.addIngredientRequirement(new Ingredient("Cheese", this), State.COOKED);
-
+        orderList.addRecipe(pizza_margherita);
 
         Recipe pizza_sosis = new Recipe("Pizza Sosis");
         pizza_sosis.addIngredientRequirement(new Ingredient("Dough", this), State.COOKED);
@@ -107,8 +108,10 @@ public class GamePanel extends JPanel implements Runnable {
         pizza_ayam.addIngredientRequirement(new Ingredient("Dough", this), State.COOKED);
         pizza_ayam.addIngredientRequirement(new Ingredient("Tomato", this), State.COOKED);
         pizza_ayam.addIngredientRequirement(new Ingredient("Cheese", this), State.COOKED);
-        pizza_ayam.addIngredientRequirement(new Ingredient("Ayam", this), State.COOKED);
+        pizza_ayam.addIngredientRequirement(new Ingredient("Chicken", this), State.COOKED);
         orderList.addRecipe(pizza_ayam);
+
+//        System.out.println("Recipes setup complete! Available recipes: " + 3);
     }
 
     public void retryGame() {

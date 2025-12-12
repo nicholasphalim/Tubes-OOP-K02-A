@@ -32,7 +32,7 @@ public class Oven extends KitchenUtensils implements CookingDevice {
 
         if (item instanceof Ingredient) {
             Ingredient ing = (Ingredient) item;
-            return ing.canBeCooked() && ing.getName().equalsIgnoreCase("Chopped Dough");
+            return ing.canBeCooked() && ing.getIngName().equalsIgnoreCase("Dough") && ing.getState() == State.CHOPPED;
         }
         else if (item instanceof Dish) {
             Dish dish = (Dish) item;
@@ -42,7 +42,10 @@ public class Oven extends KitchenUtensils implements CookingDevice {
             for (Preparable p : dishComponents) {
                 if (p instanceof Ingredient) {
                     Ingredient ing = (Ingredient) p;
-                    if (ing.getName().equalsIgnoreCase("Chopped Dough")) {foundDough = true; break;}
+                    if (ing.getIngName().equalsIgnoreCase("Dough") && ing.getState() == State.CHOPPED) {
+                        foundDough = true;
+                        break;
+                    }
                 }
             }
             return (!dish.isCooked() || (dish.isCooked() && !dish.isBurned())) && foundDough;}
@@ -148,12 +151,10 @@ public class Oven extends KitchenUtensils implements CookingDevice {
             Ingredient ing = (Ingredient) currentItem;
             ing.changeState(State.COOKED);
             ing.updateImage();
-            ing.name = "Baked " + ing.name;
         }
         else if (currentItem instanceof Dish) {
             Dish dish = (Dish) currentItem;
             dish.setCooked(true);
-            dish.name = "Baked " + dish.name;
         }
 
         System.out.println("Oven finished baking!");
@@ -164,12 +165,10 @@ public class Oven extends KitchenUtensils implements CookingDevice {
             Ingredient ing = (Ingredient) currentItem;
             ing.changeState(State.BURNED);
             ing.updateImage();
-            ing.name = "Burnt Food";
         }
         else if (currentItem instanceof Dish) {
             Dish dish = (Dish) currentItem;
             dish.setBurned(true);
-            dish.name = "Burnt Dish";
         }
         if(gp != null) gp.ui.showMessage("Food is BURNED!");
         System.out.println("Oven food burned!");

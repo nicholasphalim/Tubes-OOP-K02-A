@@ -278,7 +278,6 @@ public class CuttingStation extends Station{
                 if (currentCuttingProgress >= 100) {
                     ing.changeState(State.CHOPPED);
                     ing.updateImage();
-                    ing.name = "Chopped " + ing.name;
                     chef.gp.ui.showMessage("Chopping Finished!");
                 }
 
