@@ -1,19 +1,22 @@
 package main;
 
-import entity.Action;
-import ingredient.Ingredient;
-import ingredient.State;
-import order.Order;
-import recipe.Recipe;
-import station.CuttingStation;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
+
+import ingredient.Ingredient;
+import ingredient.State;
+import order.Order;
+import recipe.Recipe;
 
 public class UI {
     GamePanel gp;
@@ -33,16 +36,36 @@ public class UI {
 
     public UI(GamePanel gp){
         this.gp = gp;
-        arial_10 = new Font("Arial", Font.BOLD, 14);
-        arial_20 = new Font("arial", Font.PLAIN, 20);
-        arial_20B = new Font("arial", Font.BOLD, 20);
-        arial_40 = new Font("arial", Font.PLAIN, 40);
-        arial_40B = new Font("arial", Font.BOLD, 20);
-        arial_60 = new Font("arial", Font.PLAIN, 40);
-        arial_80 = new Font("arial", Font.BOLD, 80);
 
-        orderFontTitle = new Font("Arial", Font.BOLD, 16);
-        orderFontBody = new Font("Arial", Font.PLAIN, 10);
+        try {
+            java.io.InputStream is = getClass().getResourceAsStream("/fonts/ari-w9500.ttf");
+            
+            if (is == null) {
+                // Jika font tidak ketemu, lempar error agar masuk ke catch
+                throw new IOException("Font file not found!");
+            }
+
+            Font pixelFont = Font.createFont(Font.TRUETYPE_FONT, is);
+
+            arial_10 = pixelFont.deriveFont(Font.BOLD, 14f);
+            arial_20 = pixelFont.deriveFont(Font.PLAIN, 20f);
+            arial_20B = pixelFont.deriveFont(Font.BOLD, 20f);
+            arial_40 = pixelFont.deriveFont(Font.PLAIN, 40f);
+            arial_40B = pixelFont.deriveFont(Font.BOLD, 40f); // Typo di kodemu '20' saya ubah jadi 40 sesuai nama var
+            arial_60 = pixelFont.deriveFont(Font.PLAIN, 60f);
+            arial_80 = pixelFont.deriveFont(Font.BOLD, 80f);
+
+            // Font khusus Order
+            orderFontTitle = pixelFont.deriveFont(Font.BOLD, 16f);
+            orderFontBody = pixelFont.deriveFont(Font.BOLD, 10f);
+            
+        } catch (FontFormatException | IOException e) {
+            System.err.println("Gagal memuat font kustom, menggunakan Arial bawaan.");
+            e.printStackTrace();
+            // Fallback: Kalau gagal load, pakai Arial biasa
+            arial_40 = new Font("Arial", Font.PLAIN, 40);
+            arial_80 = new Font("Arial", Font.BOLD, 80);
+        }
 
         try {
             titlebg = ImageIO.read(getClass().getResourceAsStream("/res/title-background.jpg"));
@@ -211,8 +234,7 @@ public class UI {
         int x = gp.mapWidth + 15;
         int y = 120;
         int width = gp.uiPanelWidth - 30;
-        int height = 60;
-        int padding = 10;
+        int paddingBetweenOrders = 10;
 
         g2.setFont(arial_10);
         g2.setColor(Color.white);
@@ -221,43 +243,105 @@ public class UI {
         for (int i = 0; i < activeOrders.size(); i++) {
             Order o = activeOrders.get(i);
 
-            // Background Tiket
+            // ---------------------------------------------------------
+            // 1. HITUNG TINGGI KOTAK SECARA DINAMIS
+            // ---------------------------------------------------------
+            g2.setFont(orderFontBody); // Set font dulu untuk ukur teks
+            String ingredients = getIngredientsString(o.getRecipe());
+            
+            // Panggil helper untuk memecah teks menjadi list baris
+            List<String> wrappedText = getWrappedText(g2, ingredients, width - 20);
+            
+            // Atur Spasi Antar Baris (Line Spacing)
+            int lineHeight = 14; // Jarak antar baris (pixel) -> Bisa diatur biar rapi
+            int textBlockHeight = wrappedText.size() * lineHeight;
+
+            // Tinggi Kotak = Header Title + Tinggi Teks Ingredients + Bar Timer + Padding
+            // 25px (Title) + textBlock + 20px (Timer area)
+            int boxHeight = 25 + textBlockHeight + 20; 
+
+            // ---------------------------------------------------------
+            // 2. GAMBAR KOTAK & KONTEN
+            // ---------------------------------------------------------
+            
+            // Background
             g2.setColor(new Color(240, 240, 220));
-            g2.fillRect(x, y, width, height);
+            g2.fillRect(x, y, width, boxHeight);
 
             // Border
             g2.setColor(Color.black);
             g2.setStroke(new BasicStroke(2));
-            g2.drawRect(x, y, width, height);
+            g2.drawRect(x, y, width, boxHeight);
 
-            // Nama Resep
+            // Judul Resep
             g2.setFont(orderFontTitle);
             g2.setColor(Color.black);
-            String title = o.getRecipe().getName();
-            g2.drawString(title, x + 10, y + 25);
+            g2.drawString(o.getRecipe().getName(), x + 10, y + 22);
 
-            // Ingredients
+            // Ingredients (Looping per baris yang sudah dihitung tadi)
             g2.setFont(orderFontBody);
-            String ingredients = getIngredientsString(o.getRecipe());
-            g2.drawString(ingredients, x + 10, y + 40);
+            int textY = y + 38; // Posisi awal teks ingredients
+            
+            for (String line : wrappedText) {
+                g2.drawString(line, x + 10, textY);
+                textY += lineHeight; // Turun ke baris berikutnya
+            }
 
-            // Timer Bar
+            // ---------------------------------------------------------
+            // 3. GAMBAR TIMER BAR (POSISI MENGIKUTI TINGGI KOTAK)
+            // ---------------------------------------------------------
             float progress = o.getCurrentTime() / o.getMaxTime();
             int barWidth = width - 20;
             int currentBarWidth = (int) (barWidth * progress);
 
-            if (progress > 0.5) g2.setColor(new Color(0, 180, 0)); // Dark Green
+            // Warna Bar
+            if (progress > 0.5) g2.setColor(new Color(0, 180, 0)); 
             else if (progress > 0.25) g2.setColor(Color.ORANGE);
             else g2.setColor(Color.RED);
 
-            g2.fillRect(x + 10, y + height - 15, currentBarWidth, 8);
+            // Posisi Bar selalu di bagian bawah kotak (boxHeight - 12)
+            int barY = y + boxHeight - 12;
+            g2.fillRect(x + 10, barY, currentBarWidth, 6);
 
+            // Border Bar
             g2.setColor(Color.black);
             g2.setStroke(new BasicStroke(1));
-            g2.drawRect(x + 10, y + height - 15, barWidth, 8);
+            g2.drawRect(x + 10, barY, barWidth, 6);
 
-            y += height + padding;
+            // Update Y untuk order berikutnya
+            y += boxHeight + paddingBetweenOrders;
         }
+    }
+
+    // Method Helper: Memecah teks panjang menjadi beberapa baris (List)
+    private java.util.List<String> getWrappedText(Graphics2D g2, String text, int maxWidth) {
+        java.util.List<String> lines = new java.util.ArrayList<>();
+        java.awt.FontMetrics fm = g2.getFontMetrics();
+
+        // Jika teks pendek, langsung kembalikan 1 baris
+        if (fm.stringWidth(text) < maxWidth) {
+            lines.add(text);
+            return lines;
+        }
+
+        // Pecah kata per kata
+        String[] words = text.split(" ");
+        String currentLine = words[0];
+
+        for (int i = 1; i < words.length; i++) {
+            // Cek apakah kata berikutnya muat di baris ini
+            if (fm.stringWidth(currentLine + " " + words[i]) < maxWidth) {
+                currentLine += " " + words[i];
+            } else {
+                // Jika tidak muat, simpan baris ini dan mulai baris baru
+                lines.add(currentLine);
+                currentLine = words[i];
+            }
+        }
+        // Jangan lupa simpan baris terakhir
+        lines.add(currentLine);
+
+        return lines;
     }
 
     private String getIngredientsString(Recipe recipe) {
