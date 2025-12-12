@@ -22,7 +22,7 @@ public class OrderList {
     private final int BASE_PENALTY = 20;
     private final int BASE_TIME_LIMIT = 90;
     private double timeSinceLastSpawn = 0.0;
-    private final double SPAWN_INTERVAL = 10.0;
+    private final double SPAWN_INTERVAL = 15.0;
     public OrderList(GamePanel gp) {
         this.gp = gp;
         this.orders = new ArrayList<>();
