@@ -169,7 +169,7 @@ Windows:
 .\gradlew clean build
 
 # Run dengan JAR file
-java -jar build/libs/NimonsCook-1.0-SNAPSHOT.jar
+java -jar build/libs/NimonsCook-1.0.0.jar
 
 # Atau run langsung dengan Gradle
 .\gradlew run
@@ -181,7 +181,7 @@ Linux/Mac:
 ./gradlew clean build
 
 # Run dengan JAR file
-java -jar build/libs/NimonsCook-1.0-SNAPSHOT.jar
+java -jar build/libs/NimonsCook-1.0.0.jar
 
 # Atau run langsung dengan Gradle
 ./gradlew run
