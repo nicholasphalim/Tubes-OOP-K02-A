@@ -86,7 +86,7 @@ public class CookingStation extends Station {
             g2.fillRect(barX, barY, barWidth, barHeight);
 
             g2.setColor(Color.GREEN);
-            int currentProgress = cookingDevice.getProgress();
+            double currentProgress = cookingDevice.getProgress();
             if (currentProgress >= 100) {currentProgress = 100;}
             int greenWidth = (int)((currentProgress / 100.0) * barWidth);
             g2.fillRect(barX, barY, greenWidth, barHeight);

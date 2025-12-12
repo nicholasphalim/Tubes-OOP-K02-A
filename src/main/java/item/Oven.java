@@ -15,7 +15,7 @@ public class Oven extends KitchenUtensils implements CookingDevice {
     private GamePanel gp;
 
     private Thread cookingThread;
-    private volatile int progress = 0;
+    private volatile double progress = 0;
     private volatile boolean isCooking = false;
     private final int COOKING_DURATION_MS = 12000;
     private final int BURNING_DURATION_MS = 12000;
@@ -102,7 +102,7 @@ public class Oven extends KitchenUtensils implements CookingDevice {
                     while (progress < 100 && isCooking) {
                         if (currentItem == null) break;
 
-                        progress += (100 * 100) / COOKING_DURATION_MS;
+                        progress += (100.0 * 100) / COOKING_DURATION_MS;
                         if (progress >= 100) {
                             progress = 100;
                             completeCooking();
@@ -116,7 +116,7 @@ public class Oven extends KitchenUtensils implements CookingDevice {
                 while (progress < 200 && isCooking) {
                     if (currentItem == null) break;
 
-                    progress += (100 * 100) / BURNING_DURATION_MS;
+                    progress += (100.0 * 100) / BURNING_DURATION_MS;
 
                     if (progress > 150) {
                          gp.ui.showMessage("Warning! Burning soon!");
@@ -194,7 +194,7 @@ public class Oven extends KitchenUtensils implements CookingDevice {
     }
 
     @Override public boolean isCooking() { return isCooking; }
-    @Override public int getProgress() { return progress; }
+    @Override public int getProgress() { return (int) progress; }
     public boolean isPortable() { return false; }
 
 }
