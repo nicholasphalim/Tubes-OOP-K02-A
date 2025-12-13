@@ -298,5 +298,5 @@ Institut Teknologi Bandung
 ---
 
 
-**Last Updated**: 12 Desember 2025
+**Last Updated**: 13 Desember 2025
 
